@@ -1,0 +1,31 @@
+# Microsoft Office temporary/lock files
+~$*.xlsx
+~$*.xlsm
+~$*.xlsb
+*.tmp
+*.xlk
+
+# Local backups and autosave/recovery files
+*.bak
+*.backup
+*.autosave
+recovery/
+local-backups/
+
+# Real/private data must never be committed
+data/private/
+evidence/private/
+secrets/
+.env
+.env.*
+!.env.example
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/settings.local.json
+.idea/
+
+# Generated output not explicitly selected for release
+build/
+dist/
