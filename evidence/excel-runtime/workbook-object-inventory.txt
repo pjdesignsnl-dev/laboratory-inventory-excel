@@ -1,0 +1,57 @@
+=== Workbook object inventory (Microsoft Excel COM) ===
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+Excel: 16.0 build 20228
+
+WORKSHEETS:
+  Dashboard
+    Tables: none
+  Scan
+    Tables: tblScanResults
+  Receiving
+    Tables: tblReceiveStaging
+  Products
+    Tables: tblProducts
+  Containers
+    Tables: tblContainers
+  Transactions
+    Tables: tblTransactions
+  Suppliers
+    Tables: tblSuppliers
+  Locations
+    Tables: tblLocations
+  Settings
+    Tables: tblSettings, tblStatusList, tblTransactionTypeList, tblExpiryClassList
+
+WORKBOOK NAMED RANGES:
+  _xlfn.COUNTIFS -> =#NAME?
+  _xlfn.SINGLE -> =#NAME?
+  DefaultLocationID -> =Settings!$B9:$B9
+  DefaultStatusNewContainers -> =Settings!$B10:$B10
+  ExpiryWarningDays30 -> =Settings!$B6:$B6
+  ExpiryWarningDays60 -> =Settings!$B7:$B7
+  ExpiryWarningDays90 -> =Settings!$B8:$B8
+  lstBool -> =Settings!$H35:$H36
+  lstCategory -> =Settings!$H8:$H13
+  lstDisposalReason -> =Settings!$H22:$H26
+  lstExpiryClassList -> =Settings!$A:$A
+  lstLocationIDs -> =Locations!$A:$A
+  lstLocationType -> =Settings!$H15:$H20
+  lstProductsProductID -> =Products!$A:$A
+  lstProductsProductName -> =Products!$B:$B
+  lstProductType -> =Settings!$H4:$H6
+  lstStatusList -> =Settings!$A:$A
+  lstSupplierIDs -> =Suppliers!$A:$A
+  lstTransactionReason -> =Settings!$H28:$H33
+  lstTransactionTypeList -> =Settings!$A:$A
+  rngReceiveExpiry -> =Receiving!$D13:$D13
+  rngReceiveLocation -> =Receiving!$D15:$D15
+  rngReceiveLot -> =Receiving!$D12:$D12
+  rngReceiveNextBarcode -> =Receiving!$D10:$D10
+  rngReceiveNextContainerID -> =Receiving!$D9:$D9
+  rngReceiveProductID -> =Receiving!$D7:$D7
+  rngReceiveQuantity -> =Receiving!$D16:$D16
+  rngReceiveRetest -> =Receiving!$D14:$D14
+  rngReceiveStatusMessage -> =Receiving!$D19:$D19
+  rngScanInput -> =Scan!$D7:$D7
+  rngScanResultCard -> =Scan!$D4:$K34
+  rngScanStatusMessage -> =Scan!$D9:$D9

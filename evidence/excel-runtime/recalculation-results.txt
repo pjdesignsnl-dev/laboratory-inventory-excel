@@ -1,0 +1,45 @@
+# Recalculation results — Microsoft Excel runtime acceptance
+# Generated: 2026-08-17 (run completed 23:28 UTC+2)
+
+## Method
+1. Opened workbook/LabInventory_v0.1.xlsx in Microsoft Excel 16.0 (build 20228, x64)
+   via COM automation (visible instance; headless rejects COM calls under this harness).
+2. Executed CalculateFullRebuild() (full dependency rebuild + recalc).
+3. Scanned every worksheet's used range for Excel error values
+   (#REF!, #VALUE!, #NAME?, #DIV/0!, #N/A, #NULL!, #NUM!) via bulk Value2 read
+   (error values marshal as large negative ints; text errors also checked).
+4. Saved a validation copy (SaveCopyAs), closed the original, reopened the copy,
+   executed CalculateFullRebuild() again, re-scanned for errors, and re-checked
+   Dashboard + Scan values.
+
+## Initial full rebuild (workbook/LabInventory_v0.1.xlsx)
+- CalculateFullRebuild: executed without error.
+- Formula error cells found after rebuild: 0
+- Dashboard total available containers (usable, D-018): 15
+- Dashboard expired (any status, by date): 2
+- Dashboard low-stock products: 4
+- Dashboard reorder products: 1
+- Dashboard frequently-used (TakeOpen counts rows 43-48): 1,1,1,1,0,0
+- Dashboard inventory by location (rows 52-57): 5,0,2,8,0,0
+
+## Scan lookups (after recalc)
+- Barcode 0000001 -> LookupState FOUND, ContainerID C000001, Status Available
+- Barcode 9999999 -> LookupState UNKNOWN
+- Barcode 0000021 (Available but expired by date, D-018) -> TakeOpen BLOCKED,
+  message "EXPIRED BY DATE — TakeOpen blocked; record MarkExpired or Dispose"
+- Products P000005 usable stock = 2 (C000021 excluded although Status=Available)
+
+## Receiving next-ID (after recalc, product P000001 selected)
+- Next ContainerID: C000022
+- Next Barcode: 0000022
+
+## Validation copy (evidence/excel-runtime/LabInventory_v0.1-validation-copy.xlsx)
+- Saved via SaveCopyAs; original closed without saving.
+- Reopened; CalculateFullRebuild executed again.
+- Formula error cells after reopen+recalc: 0  ->  no corruption / no formula drift
+- Dashboard total available after reopen: 15 (matches original)
+- Scan 0000001 after reopen: FOUND (matches original)
+
+## Conclusion
+PASS — no corruption, no formula drift, full recalculation stable across
+save/reopen. See excel-runtime-results.txt for the complete 29-check report.

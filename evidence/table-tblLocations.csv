@@ -1,4 +1,4 @@
-﻿Storage Location ID,Location Name,Location Type,Description,Active
+﻿StorageLocationID,LocationName,LocationType,Description,Active
 LOC0001,Chemical Cabinet 1,Cabinet,Flammables,True
 LOC0002,Chemical Cabinet 2,Cabinet,Acids,True
 LOC0003,Fridge 1,Fridge,Cold reagents,True

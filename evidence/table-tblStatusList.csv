@@ -1,4 +1,4 @@
-﻿Status Value,Label
+﻿StatusValue,Label
 Available,"In storage, usable"
 InUse,"Taken/opened, out of storage"
 Expired,"Past expiry, unusable"

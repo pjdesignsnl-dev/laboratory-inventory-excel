@@ -15,67 +15,67 @@ SHEETS:
 TABLES AND COLUMNS:
 
 tblProducts on Products ref A4:U10
-    ProductID                        Product ID
-    ProductName                      Product Name
-    ProductType                      Product Type
+    ProductID                        ProductID
+    ProductName                      ProductName
+    ProductType                      ProductType
     Category                         Category
     Manufacturer                     Manufacturer
-    ManufacturerCatalogueNumber      Manufacturer Catalogue Number
-    CASNumber                        CAS Number
+    ManufacturerCatalogueNumber      ManufacturerCatalogueNumber
+    CASNumber                        CASNumber
     Concentration                    Concentration
-    Grade                            Grade / Purity
-    StandardContainerDescription     Standard Container Description
-    SupplierID                       Supplier ID
-    StorageRequirements              Storage Requirements
-    HazardClassification             Hazard Classification
-    SDSReference                     SDS Reference
-    MinimumContainerStock            Minimum Container Stock
-    TargetContainerStock             Target Container Stock
-    ReorderQuantity                  Reorder Quantity
+    Grade                            Grade
+    StandardContainerDescription     StandardContainerDescription
+    SupplierID                       SupplierID
+    StorageRequirements              StorageRequirements
+    HazardClassification             HazardClassification
+    SDSReference                     SDSReference
+    MinimumContainerStock            MinimumContainerStock
+    TargetContainerStock             TargetContainerStock
+    ReorderQuantity                  ReorderQuantity
     Active                           Active
     Notes                            Notes
-    HelperAvailableStock             Available Stock (formula)
-    HelperStockClass                 Stock Class (formula)
+    HelperAvailableStock             HelperAvailableStock
+    HelperStockClass                 HelperStockClass
 
 tblContainers on Containers ref A4:O25
-    ContainerID                      Container ID
+    ContainerID                      ContainerID
     Barcode                          Barcode
-    ProductID                        Product ID
-    BatchLotNumber                   Batch / Lot Number
-    ExpiryDate                       Expiry Date
-    RetestDate                       Retest Date
-    DateReceived                     Date Received
-    StorageLocationID                Storage Location ID
+    ProductID                        ProductID
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    RetestDate                       RetestDate
+    DateReceived                     DateReceived
+    StorageLocationID                StorageLocationID
     Status                           Status
-    OpenedDate                       Opened Date
-    DisposalDate                     Disposal Date
-    DisposalReason                   Disposal Reason
+    OpenedDate                       OpenedDate
+    DisposalDate                     DisposalDate
+    DisposalReason                   DisposalReason
     Notes                            Notes
-    HelperContainerNum               Helper Container Num
-    HelperBarcodeNum                 Helper Barcode Num
+    HelperContainerNum               HelperContainerNum
+    HelperBarcodeNum                 HelperBarcodeNum
 
 tblTransactions on Transactions ref A4:P35
-    TransactionID                    Transaction ID
+    TransactionID                    TransactionID
     Timestamp                        Timestamp
     Operator                         Operator
     Barcode                          Barcode
-    ContainerID                      Container ID
-    ProductID                        Product ID
-    ProductName                      Product Name
-    TransactionType                  Transaction Type
-    PreviousStatus                   Previous Status
-    NewStatus                        New Status
-    PreviousLocation                 Previous Location
-    NewLocation                      New Location
-    BatchLotNumber                   Batch / Lot Number
+    ContainerID                      ContainerID
+    ProductID                        ProductID
+    ProductName                      ProductName
+    TransactionType                  TransactionType
+    PreviousStatus                   PreviousStatus
+    NewStatus                        NewStatus
+    PreviousLocation                 PreviousLocation
+    NewLocation                      NewLocation
+    BatchLotNumber                   BatchLotNumber
     Reason                           Reason
     Reference                        Reference
     Notes                            Notes
 
 tblSuppliers on Suppliers ref A4:H7
-    SupplierID                       Supplier ID
-    SupplierName                     Supplier Name
-    ContactName                      Contact Name
+    SupplierID                       SupplierID
+    SupplierName                     SupplierName
+    ContactName                      ContactName
     Email                            Email
     Phone                            Phone
     Website                          Website
@@ -83,57 +83,57 @@ tblSuppliers on Suppliers ref A4:H7
     Notes                            Notes
 
 tblLocations on Locations ref A4:E10
-    StorageLocationID                Storage Location ID
-    LocationName                     Location Name
-    LocationType                     Location Type
+    StorageLocationID                StorageLocationID
+    LocationName                     LocationName
+    LocationType                     LocationType
     Description                      Description
     Active                           Active
 
 tblSettings on Settings ref A5:C13
-    SettingKey                       Setting Key
-    SettingValue                     Setting Value
+    SettingKey                       SettingKey
+    SettingValue                     SettingValue
     Description                      Description
 
 tblStatusList on Settings ref A16:B22
-    StatusValue                      Status Value
+    StatusValue                      StatusValue
     Label                            Label
 
 tblTransactionTypeList on Settings ref A25:B34
-    TransactionTypeValue             Transaction Type Value
+    TransactionTypeValue             TransactionTypeValue
     Label                            Label
 
 tblExpiryClassList on Settings ref A37:B42
-    ExpiryClassValue                 Expiry Class Value
+    ExpiryClassValue                 ExpiryClassValue
     Label                            Label
 
 tblScanResults on Scan ref D12:P13
     Barcode                          Barcode
-    ContainerID                      Container ID
-    ProductID                        Product ID
-    ProductName                      Product Name
-    BatchLotNumber                   Batch / Lot Number
-    ExpiryDate                       Expiry Date
-    StorageLocationID                Storage Location ID
-    LocationName                     Location Name
+    ContainerID                      ContainerID
+    ProductID                        ProductID
+    ProductName                      ProductName
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    StorageLocationID                StorageLocationID
+    LocationName                     LocationName
     Status                           Status
-    OpenedDate                       Opened Date
-    ExpiryClass                      Expiry Class
-    DuplicateFlag                    Duplicate Flag
-    LookupState                      Lookup State
+    OpenedDate                       OpenedDate
+    ExpiryClass                      ExpiryClass
+    DuplicateFlag                    DuplicateFlag
+    LookupState                      LookupState
 
 tblReceiveStaging on Receiving ref B31:M32
-    ProductID                        Product ID
-    ProductName                      Product Name
-    NextContainerID                  Next Container ID
-    NextBarcode                      Next Barcode
-    BatchLotNumber                   Batch / Lot Number
-    ExpiryDate                       Expiry Date
-    RetestDate                       Retest Date
-    StorageLocationID                Storage Location ID
+    ProductID                        ProductID
+    ProductName                      ProductName
+    NextContainerID                  NextContainerID
+    NextBarcode                      NextBarcode
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    RetestDate                       RetestDate
+    StorageLocationID                StorageLocationID
     Status                           Status
     Quantity                         Quantity
-    ValidationMessage                Validation Message
-    ReadinessState                   Readiness State
+    ValidationMessage                ValidationMessage
+    ReadinessState                   ReadinessState
 
 NAMED RANGES:
   DefaultLocationID -> 'Settings'!$B9:$B9

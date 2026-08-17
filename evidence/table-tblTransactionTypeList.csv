@@ -1,4 +1,4 @@
-﻿Transaction Type Value,Label
+﻿TransactionTypeValue,Label
 Receive,Create/activate a container
 TakeOpen,Take from storage / open
 Return,Return to storage

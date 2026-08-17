@@ -1,18 +1,56 @@
 # Non-VBA test results — Laboratory Inventory v0.1
 
 **Workbook:** `workbook/LabInventory_v0.1.xlsx` (macro-free)
-**Test date:** 2026-08-17 (rev. 2026-08-17 — architecture-review corrections)
+**Test date:** 2026-08-17 (rev. 2026-08-17 — architecture-review corrections + Excel runtime acceptance)
 **Build machine:** Windows 10 IoT Enterprise LTSC 2021 (21H2), build 19044, AMD64
-**Excel installed on test machine:** **No** (no Microsoft Office/LibreOffice/WPS found)
+**Microsoft Excel installed:** **Yes** — 16.0.20228.20190 (x64), used for the authoritative runtime acceptance in `evidence/excel-runtime/`.
 
-> **Verification boundary (decision D-004).** Because no desktop Excel exists on
-> the build machine, tests here are (1) openpyxl structural inspection and
-> (2) independent Excel-formula evaluation with the `formulas` library on a
-> mechanically flattened copy of the workbook (structured references rewritten
-> to plain ranges; formula logic unchanged). These are genuine independent
-> checks but are **not** desktop Excel tests. Desktop Excel open/recalc/visual
-> verification and physical-scanner acceptance remain owner-side steps before
-> the contract freeze — they are listed as `DEFERRED` below.
+> **Verification model (decision D-004, superseded by runtime).** The static
+> openpyxl/formulas tests were the only option before Excel was installed. With
+> Microsoft Excel now installed, the **Excel runtime acceptance
+> (evidence/excel-runtime/excel-runtime-results.txt, 29/29 PASS) is the
+> authoritative check**; the openpyxl/formulas suites remain as supplementary
+> regression evidence.
+
+## Runtime acceptance summary (Microsoft Excel COM, 29/29 PASS)
+
+Full detail: `evidence/excel-runtime/excel-runtime-results.txt`; run: `& scripts/excel_runtime_test.ps1`
+
+| Check | Result |
+|---|---|
+| Workbook opens without repair (xlsx, format 51) | PASS |
+| No VBA project (HasVBProject=False) | PASS |
+| All 9 expected worksheets exist | PASS |
+| All ListObjects/Tables present per contract | PASS |
+| Named ranges resolve (bounded + column-lists by name) | PASS |
+| No formula errors after CalculateFullRebuild | PASS |
+| Dashboard total available = 15 | PASS |
+| Dashboard expired = 2 / low = 4 / reorder = 1 | PASS |
+| Dashboard frequently-used (rows 43–48) = 1,1,1,1,0,0 | PASS |
+| Dashboard inventory-by-location (rows 52–57) = 5,0,2,8,0,0 | PASS |
+| Scan 0000001 → FOUND / C000001 / Available | PASS |
+| Scan 9999999 → UNKNOWN | PASS |
+| Scan 0000021 → TakeOpen BLOCKED (expired by date, D-018) | PASS |
+| P000005 usable stock = 2 (expired-by-date excluded) | PASS |
+| Receiving next ContainerID = C000022 / Barcode = 0000022 | PASS |
+| All 9 sheets protected; workbook structure protected | PASS |
+| Data validation present (7 probed cells) | PASS |
+| Validation copy saved, reopened, recalculated: no errors, no drift | PASS |
+
+## Defects found by the Excel runtime and fixed (macro-free only)
+
+1. **Structured-reference `#REF!`:** Excel Table header text was the display
+   text ("Expiry Date") while formulas used the column name (`ExpiryDate`), so
+   `tblContainers[ExpiryDate]` evaluated to `#REF!` in real Excel. Fixed: header
+   text now equals the column name exactly. (Static/formulas tests had masked
+   this because they rewrote references by schema name.)
+2. **Receiving next-ID broken by implicit intersection:** formulas using the
+   `rngReceiveProductID` named range were mangled by Excel's dynamic-array
+   `@` operator. Fixed: Receiving formulas now use direct `$D$7` references
+   (same pattern as the verified Scan sheet).
+3. **Text entry coercion:** COM wrote `0000001` as a number unless the cell
+   format was forced to text. The runtime test now forces `@` before writing
+   barcodes/IDs.
 
 ## Revision summary (2026-08-17)
 
@@ -28,10 +66,11 @@ Four pre-freeze corrections applied (see `docs/decisions.md` D-013, D-016–D-01
 
 | Phase | Checks | Result |
 |---|---|---|
+| R — Microsoft Excel runtime acceptance (authoritative) | 29 | **PASS** |
 | B — Structural inspection (openpyxl) incl. contract-YAML parity | 51 | **PASS** |
 | C — Formula & business rules (formulas library) incl. D-018 + dashboard views | 55 | **PASS** |
 | D — VBA module tests | — | DEFERRED (prohibited this phase) |
-| E — Integration / physical scanner | — | DEFERRED (needs desktop Excel + scanner) |
+| E — Integration / physical scanner | — | DEFERRED (needs physical scanner) |
 
 ## Phase A — Architecture tests (documentation)
 
@@ -167,9 +206,8 @@ scanner. Owner-side steps before contract freeze:
 ## Workbook checksum
 
 ```
-SHA-256: 6DE5B84AE81A04F0886BD96FC35EB316AEA4218C4AA386C3065CF3E322D82470
+SHA-256: C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A
 Path:    workbook/LabInventory_v0.1.xlsx
-Size:    278887 bytes
 ```
 
 ## Reproduction
@@ -179,4 +217,5 @@ python scripts/build_workbook.py
 python scripts/inspect_workbook.py
 python scripts/test_formulas.py
 python scripts/render_screenshots.py
+& scripts/excel_runtime_test.ps1   # requires installed Microsoft Excel
 ```

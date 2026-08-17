@@ -12,15 +12,19 @@ The build machine is a Windows desktop that hosts this repository. Recorded fact
 | Item | Value |
 |---|---|
 | Operating system | Windows 10 IoT Enterprise LTSC 2021 (21H2), build 19044, AMD64 |
-| Microsoft Office / Excel | **Not installed.** No `EXCEL.EXE`, Click-to-Run registry keys, Appx package, or WPS/LibreOffice installation was found. Excel edition/build is therefore **not discoverable** without changing system configuration. |
+| Microsoft Office / Excel | **Installed (2026-08-17):** Microsoft Excel 16.0.20228.20190 (x64) at `C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE`; Click-to-Run, Current Channel. COM automation verified working. |
 | Python | 3.11.0 (64-bit) at `C:\Users\Q\AppData\Local\Programs\Python\Python311` |
 | openpyxl | 3.1.5 (installed workspace-locally into `.tools/pylib`, not system-wide) |
 | formulas library | 1.3.4 (workspace-local) — used for non-VBA formula evaluation |
 | Pillow | 12.3.0 (workspace-local) |
 | 7-Zip | present at `C:\Program Files\7-Zip\7z.exe` |
-| LibreOffice (portable, headless) | download attempted for verification/rendering; network-dependent |
+| LibreOffice (portable, headless) | download attempted for verification/rendering; not needed after Excel was installed |
 
-**Consequence (recorded, not hidden):** desktop Excel verification **could not be executed on this machine**. Per `AGENTS.md` ("Do not claim desktop Excel/VBA/scanner tests passed unless they actually ran on Windows desktop Excel"), all tests in this phase are **structural inspection plus independent formula evaluation** using openpyxl/formulas, and (if the portable renderer is obtainable) a LibreOffice headless open/recalc/export smoke test. Desktop Excel verification remains a required owner-side step before the contract is frozen for VBA. This is logged as decision D-004.
+**Verification outcome (updated 2026-08-17):** with Microsoft Excel now
+installed, the **Excel runtime acceptance was executed and passed 29/29**
+(`evidence/excel-runtime/excel-runtime-results.txt`), superseding the earlier
+deferred status. Decision D-004 is updated accordingly (the runtime test is
+the authoritative check; openpyxl/formulas suites remain supplementary).
 
 ## 2. Assumptions applied (from `docs/default-assumptions.md`)
 

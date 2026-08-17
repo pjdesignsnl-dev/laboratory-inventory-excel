@@ -145,10 +145,10 @@ def _build_settings(wb):
         ws.cell(row=r, column=3, value=desc)
     ws.cell(row=13, column=1, value="Settings table (7 keys): expiry bands 30/60/90 days, default location, default new status, scanner Enter suffix, version.").font = SMALL_FONT
 
-    # status list (tblStatusList)
+    # status list (tblStatusList) — header text == column name (Excel refs)
     sl_row = 15
     ws.cell(row=sl_row, column=1, value="tblStatusList").font = SECTION_FONT
-    ws.cell(row=sl_row + 1, column=1, value="Status Value").font = HDR_FONT
+    ws.cell(row=sl_row + 1, column=1, value="StatusValue").font = HDR_FONT
     ws.cell(row=sl_row + 1, column=2, value="Label").font = HDR_FONT
     _style_header(ws, sl_row + 1, 2)
     status_labels = {
@@ -166,7 +166,7 @@ def _build_settings(wb):
     # transaction type list
     tt_row = sl_row + 2 + len(STATUSES) + 1
     ws.cell(row=tt_row, column=1, value="tblTransactionTypeList").font = SECTION_FONT
-    ws.cell(row=tt_row + 1, column=1, value="Transaction Type Value").font = HDR_FONT
+    ws.cell(row=tt_row + 1, column=1, value="TransactionTypeValue").font = HDR_FONT
     ws.cell(row=tt_row + 1, column=2, value="Label").font = HDR_FONT
     _style_header(ws, tt_row + 1, 2)
     tt_labels = {
@@ -187,7 +187,7 @@ def _build_settings(wb):
     # expiry class list
     ec_row = tt_row + 2 + len(TRANSACTION_TYPES) + 1
     ws.cell(row=ec_row, column=1, value="tblExpiryClassList").font = SECTION_FONT
-    ws.cell(row=ec_row + 1, column=1, value="Expiry Class Value").font = HDR_FONT
+    ws.cell(row=ec_row + 1, column=1, value="ExpiryClassValue").font = HDR_FONT
     ws.cell(row=ec_row + 1, column=2, value="Label").font = HDR_FONT
     _style_header(ws, ec_row + 1, 2)
     ec_labels = {
@@ -375,8 +375,8 @@ def _build_containers(wb):
         r = hdr + 1 + k
         ws.cell(row=r, column=14, value=f'=VALUE(SUBSTITUTE(A{r},"C",""))')
         ws.cell(row=r, column=15, value=f'=VALUE(B{r})')
-    ws.cell(row=hdr, column=14, value="Helper Container Num")
-    ws.cell(row=hdr, column=15, value="Helper Barcode Num")
+    ws.cell(row=hdr, column=14, value="HelperContainerNum")
+    ws.cell(row=hdr, column=15, value="HelperBarcodeNum")
     for c in (14, 15):
         ws.cell(row=hdr, column=c).font = HDR_FONT
         ws.cell(row=hdr, column=c).fill = PatternFill("solid", fgColor="607D8B")
@@ -539,12 +539,15 @@ def _build_receiving(wb):
     ws.cell(row=6, column=2, value="Product ID:").font = BODY_FONT
     ws.cell(row=7, column=4, value="").fill = FILL_INPUT
     ws.cell(row=8, column=2, value="Product name:").font = BODY_FONT
-    ws.cell(row=8, column=4, value='=IF(rngReceiveProductID="","",IF(COUNTIF(tblProducts[ProductID],rngReceiveProductID)=1,INDEX(tblProducts[ProductName],MATCH(rngReceiveProductID,tblProducts[ProductID],0)),"UNKNOWN"))')
+    # Use direct $D$7 references (not the rngReceiveProductID named range) so
+    # Excel's dynamic-array engine does not inject implicit-intersection on the
+    # named range. This mirrors the Scan sheet, which verifiably works in Excel.
+    ws.cell(row=8, column=4, value='=IF($D$7="","",IF(COUNTIF(tblProducts[ProductID],$D$7)=1,INDEX(tblProducts[ProductName],MATCH($D$7,tblProducts[ProductID],0)),"UNKNOWN"))')
     ws.cell(row=9, column=2, value="Next Container ID:").font = BODY_FONT
-    ws.cell(row=9, column=4, value='=IF(rngReceiveProductID="","",TEXT(MAX(tblContainers[HelperContainerNum])+1,"C000000"))')
+    ws.cell(row=9, column=4, value='=IF($D$7="","",TEXT(MAX(tblContainers[HelperContainerNum])+1,"C000000"))')
     ws.cell(row=9, column=4).fill = FILL_LIGHT
     ws.cell(row=10, column=2, value="Next Barcode:").font = BODY_FONT
-    ws.cell(row=10, column=4, value='=IF(rngReceiveProductID="","",TEXT(MAX(tblContainers[HelperBarcodeNum])+1,"0000000"))')
+    ws.cell(row=10, column=4, value='=IF($D$7="","",TEXT(MAX(tblContainers[HelperBarcodeNum])+1,"0000000"))')
     ws.cell(row=10, column=4).fill = FILL_LIGHT
     ws.cell(row=12, column=2, value="Batch / Lot:").font = BODY_FONT
     ws.cell(row=12, column=4, value="").fill = FILL_INPUT
@@ -560,7 +563,7 @@ def _build_receiving(wb):
     ws.cell(row=17, column=4, value='=DefaultStatusNewContainers').fill = FILL_LIGHT
 
     ws.cell(row=19, column=2, value="Readiness:").font = BODY_FONT
-    ws.cell(row=19, column=4, value='=IF(rngReceiveProductID="","NOT READY — select product",IF(rngReceiveLot="","NOT READY — enter lot",IF(AND(rngReceiveQuantity>=1,rngReceiveQuantity<=999),"READY","NOT READY — quantity")))')
+    ws.cell(row=19, column=4, value='=IF($D$7="","NOT READY — select product",IF($D$12="","NOT READY — enter lot",IF(AND($D$16>=1,$D$16<=999),"READY","NOT READY — quantity")))')
     ws.cell(row=19, column=4).font = Font(bold=True, size=11)
     ws.cell(row=21, column=2, value="Steps (interim manual mode):").font = SECTION_FONT
     steps = [
@@ -581,18 +584,18 @@ def _build_receiving(wb):
     for i, (name, header, _w) in enumerate(rcols, start=1):
         ws.cell(row=hdr, column=1 + i, value=header)
     _style_header(ws, hdr, len(rcols), start_col=2)
-    ws.cell(row=32, column=2, value='=IF(rngReceiveProductID="","",rngReceiveProductID)')
-    ws.cell(row=32, column=3, value='=IF(rngReceiveProductID="","",B8)')
-    ws.cell(row=32, column=4, value='=IF(rngReceiveProductID="","",D9)')
-    ws.cell(row=32, column=5, value='=IF(rngReceiveProductID="","",D10)')
-    ws.cell(row=32, column=6, value='=IF(rngReceiveProductID="","",D12)')
-    ws.cell(row=32, column=7, value='=IF(rngReceiveProductID="","",D13)')
-    ws.cell(row=32, column=8, value='=IF(rngReceiveProductID="","",D14)')
-    ws.cell(row=32, column=9, value='=IF(rngReceiveProductID="","",D15)')
-    ws.cell(row=32, column=10, value='=IF(rngReceiveProductID="","",D17)')
-    ws.cell(row=32, column=11, value='=IF(rngReceiveProductID="","",D16)')
-    ws.cell(row=32, column=12, value='=IF(rngReceiveProductID="","",D19)')
-    ws.cell(row=32, column=13, value='=IF(rngReceiveProductID="","",D19)')
+    ws.cell(row=32, column=2, value='=IF($D$7="","",$D$7)')
+    ws.cell(row=32, column=3, value='=IF($D$7="","",B8)')
+    ws.cell(row=32, column=4, value='=IF($D$7="","",D9)')
+    ws.cell(row=32, column=5, value='=IF($D$7="","",D10)')
+    ws.cell(row=32, column=6, value='=IF($D$7="","",D12)')
+    ws.cell(row=32, column=7, value='=IF($D$7="","",D13)')
+    ws.cell(row=32, column=8, value='=IF($D$7="","",D14)')
+    ws.cell(row=32, column=9, value='=IF($D$7="","",D15)')
+    ws.cell(row=32, column=10, value='=IF($D$7="","",D17)')
+    ws.cell(row=32, column=11, value='=IF($D$7="","",D16)')
+    ws.cell(row=32, column=12, value='=IF($D$7="","",D19)')
+    ws.cell(row=32, column=13, value='=IF($D$7="","",D19)')
     for c in range(2, 14):
         ws.cell(row=32, column=c).border = BOX
         ws.cell(row=32, column=c).alignment = CENTER

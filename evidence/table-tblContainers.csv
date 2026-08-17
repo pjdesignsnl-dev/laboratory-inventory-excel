@@ -1,4 +1,4 @@
-﻿Container ID,Barcode,Product ID,Batch / Lot Number,Expiry Date,Retest Date,Date Received,Storage Location ID,Status,Opened Date,Disposal Date,Disposal Reason,Notes,Helper Container Num,Helper Barcode Num
+﻿ContainerID,Barcode,ProductID,BatchLotNumber,ExpiryDate,RetestDate,DateReceived,StorageLocationID,Status,OpenedDate,DisposalDate,DisposalReason,Notes,HelperContainerNum,HelperBarcodeNum
 C000001,0000001,P000001,LOT0001,,,2026-01-10T00:00:00,LOC0004,Available,,,,Tips box 1,"=VALUE(SUBSTITUTE(A5,""C"",""""))",=VALUE(B5)
 C000002,0000002,P000001,LOT0001,,,2026-01-10T00:00:00,LOC0004,Available,,,,Tips box 2,"=VALUE(SUBSTITUTE(A6,""C"",""""))",=VALUE(B6)
 C000003,0000003,P000001,LOT0002,,,2026-03-05T00:00:00,LOC0004,Available,2026-03-06T00:00:00,,,"Tips box 3 (opened, returned)","=VALUE(SUBSTITUTE(A7,""C"",""""))",=VALUE(B7)

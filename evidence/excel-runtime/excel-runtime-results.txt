@@ -1,0 +1,42 @@
+=== Excel runtime acceptance — 2026-08-17 23:34:18 ===
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+Excel launched: version 16.0, build 20228
+Workbook opened: LabInventory_v0.1.xlsx (format 51)
+[PASS] Workbook opens without repair (format xlsx=51) FileFormat=51
+[PASS] Workbook has no VBA project HasVBProject=False
+[PASS] All 9 expected worksheets exist got: Dashboard, Scan, Receiving, Products, Containers, Transactions, Suppliers, Locations, Settings
+[PASS] Exactly 9 worksheets count=9
+[PASS] All ListObjects/Tables present per contract 
+[PASS] Named ranges resolve (bounded materialized; column-lists by name) 
+CalculateFullRebuild executed.
+[PASS] No formula error values anywhere (initial) 
+[PASS] Dashboard total available = 15 got 15
+[PASS] Dashboard expired count = 2 got 2
+[PASS] Dashboard low count = 4 got 4
+[PASS] Dashboard reorder count = 1 got 1
+[PASS] Dashboard frequently-used TakeOpen counts match rows 43-48
+[PASS] Dashboard inventory-by-location counts match rows 52-57
+[PASS] Scan 0000001 -> C000001 Available cid=C000001 status=Available
+[PASS] Scan 0000001 LookupState FOUND got FOUND
+[PASS] Scan 9999999 LookupState UNKNOWN got UNKNOWN
+[PASS] Scan 0000021 TakeOpen blocked (expired by date) actions=TakeOpen BLOCKED (expired by date) | Dispose | MarkExpired
+[PASS] Scan 0000021 blocking message blocking=EXPIRED BY DATE — TakeOpen blocked; record MarkExpired or Dispose
+[PASS] P000005 usable stock = 2 (C000021 expired-by-date excluded) got 2
+[PASS] Receiving next ContainerID = C000022 got C000022
+[PASS] Receiving next Barcode = 0000022 got 0000022
+[PASS] All 9 sheets protected 
+[PASS] Workbook structure protected 
+[PASS] Data validation rules present validated cells found=7
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\01-dashboard.pdf
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\02-scan.pdf
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\03-receiving.pdf
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\04-products.pdf
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\05-containers.pdf
+Screenshot (PDF) written: C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\screenshots\06-transactions.pdf
+[PASS] Validation copy saved C:\Users\Q\Documents\laboratory-inventory-excel\evidence\excel-runtime\LabInventory_v0.1-validation-copy.xlsx
+[PASS] Validation copy reopened 
+[PASS] Validation copy recalc: no formula errors 
+[PASS] Validation copy dashboard total available = 15 got 15
+[PASS] Validation copy scan 0000001 FOUND got FOUND
+
+=== TOTALS: 29 passed, 0 failed ===

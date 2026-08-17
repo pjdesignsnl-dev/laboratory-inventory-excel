@@ -1,0 +1,50 @@
+# Environment — Excel runtime acceptance
+# Generated: 2026-08-17 (updated after full runtime run)
+
+## Operating system
+OS: Windows 10 IoT Enterprise LTSC 2021 (21H2)
+Build: 19044
+Architecture: AMD64
+
+## Microsoft Excel (installed on this PC)
+Executable: C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE
+Product: Microsoft Excel (Microsoft Office Click-to-Run)
+FileVersion: 16.0.20228.20190
+ProductVersion: 16.0.20228.20190
+Build (COM): 20228
+Version (COM): 16.0
+Bitness: x64 (AMD64) — PE machine 0x8664; Click-to-Run Platform=x64
+UpdateChannel: Current Channel (officecdn CDN)
+
+## COM automation
+New-Object -ComObject Excel.Application: OK (works)
+Visible: true (a headless instance under this harness does not pump Windows
+  messages, which causes RPC_E_CALL_REJECTED on COM calls; a visible instance
+  is reliable — verified with a clean 29/29 pass)
+DisplayAlerts: false
+Workbooks.Open(Filename, 0, $false): OK (do NOT pass a Format/CorruptLoad arg;
+  passing Format=5 opened the workbook with 0 worksheets)
+
+## Workbook under test
+Path: workbook\LabInventory_v0.1.xlsx
+SHA-256: C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A
+Macro-free: yes (.xlsx, no vbaProject)
+
+## Reference date (system clock)
+2026-08-17 (matches fixture base date)
+
+## Runtime acceptance result
+Excel runtime acceptance: 29/29 PASS (evidence/excel-runtime/excel-runtime-results.txt)
+- opens without repair; no VBA project
+- 9 worksheets, all Tables, named ranges resolve
+- no formula errors after CalculateFullRebuild
+- Dashboard reconciles (15/2/4/1 + frequently-used + by-location)
+- Scan 0000001 FOUND / 9999999 UNKNOWN / 0000021 TakeOpen blocked (D-018)
+- P000005 usable stock = 2 (expired-by-date excluded)
+- Receiving next IDs C000022 / 0000022
+- protection + validation present
+- validation copy saved, reopened, recalculated: no errors, no drift
+
+## Tooling (supplementary only)
+openpyxl 3.1.5, formulas 1.3.4, PyYAML 6.0, Pillow 12.3.0 (workspace-local .tools/pylib)
+Note: static/openpyxl/formulas tests are NOT substitutes for this runtime test.

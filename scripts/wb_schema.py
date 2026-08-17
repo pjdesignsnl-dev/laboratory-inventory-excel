@@ -3,6 +3,12 @@
 Single source of truth for sheet/table/column/named-range definitions used by
 the builder and by the structural inspection/tests. Keeping these in Python
 lets the builder and the tests agree without parsing the YAML contract.
+
+IMPORTANT (Excel-runtime fix 2026-08-17): the header text of every Excel Table
+column MUST equal its column name exactly (PascalCase, no spaces). Excel
+resolves structured references like tblContainers[ExpiryDate] by the header
+cell text; a header "Expiry Date" makes the reference #REF!. The contract
+already defines PascalCase column names, so headers now mirror them exactly.
 """
 from __future__ import annotations
 
@@ -48,6 +54,16 @@ DISPOSAL_REASONS = ["Used Up", "Expired", "Damaged", "Missing", "Other"]
 TRANSACTION_REASONS = ["Used Up", "Expired", "Damaged", "Missing", "Correction", "Other"]
 BOOLEANS = ["TRUE", "FALSE"]
 
+
+def _cols(*items):
+    """Build column tuples (name, header, width) with header == name.
+
+    Header text must equal the column name so Excel structured references
+    resolve exactly (tblContainers[ExpiryDate] needs a header 'ExpiryDate').
+    """
+    return [(name, name, width) for (name, width) in items]
+
+
 # ---------------------------------------------------------------- tables
 # Each entry: name -> dict(sheet, key, start_col, columns=[(name, header, width)])
 TABLES = {
@@ -55,29 +71,29 @@ TABLES = {
         "sheet": "Products",
         "key": "ProductID",
         "start_col": 1,
-        "columns": [
-            ("ProductID", "Product ID", 11),
-            ("ProductName", "Product Name", 30),
-            ("ProductType", "Product Type", 13),
-            ("Category", "Category", 13),
-            ("Manufacturer", "Manufacturer", 20),
-            ("ManufacturerCatalogueNumber", "Manufacturer Catalogue Number", 16),
-            ("CASNumber", "CAS Number", 14),
-            ("Concentration", "Concentration", 12),
-            ("Grade", "Grade / Purity", 12),
-            ("StandardContainerDescription", "Standard Container Description", 20),
-            ("SupplierID", "Supplier ID", 12),
-            ("StorageRequirements", "Storage Requirements", 18),
-            ("HazardClassification", "Hazard Classification", 16),
-            ("SDSReference", "SDS Reference", 14),
-            ("MinimumContainerStock", "Minimum Container Stock", 12),
-            ("TargetContainerStock", "Target Container Stock", 12),
-            ("ReorderQuantity", "Reorder Quantity", 12),
-            ("Active", "Active", 8),
-            ("Notes", "Notes", 24),
-            ("HelperAvailableStock", "Available Stock (formula)", 14),
-            ("HelperStockClass", "Stock Class (formula)", 12),
-        ],
+        "columns": _cols(
+            ("ProductID", 11),
+            ("ProductName", 30),
+            ("ProductType", 13),
+            ("Category", 13),
+            ("Manufacturer", 20),
+            ("ManufacturerCatalogueNumber", 16),
+            ("CASNumber", 14),
+            ("Concentration", 12),
+            ("Grade", 12),
+            ("StandardContainerDescription", 20),
+            ("SupplierID", 12),
+            ("StorageRequirements", 18),
+            ("HazardClassification", 16),
+            ("SDSReference", 14),
+            ("MinimumContainerStock", 12),
+            ("TargetContainerStock", 12),
+            ("ReorderQuantity", 12),
+            ("Active", 8),
+            ("Notes", 24),
+            ("HelperAvailableStock", 14),
+            ("HelperStockClass", 12),
+        ),
         # calculated/derived columns: never manually edited; protected in the
         # workbook; excluded from authoritative data entry (D-017)
         "calculated_columns": [
@@ -89,23 +105,23 @@ TABLES = {
         "sheet": "Containers",
         "key": "ContainerID",
         "start_col": 1,
-        "columns": [
-            ("ContainerID", "Container ID", 12),
-            ("Barcode", "Barcode", 11),
-            ("ProductID", "Product ID", 11),
-            ("BatchLotNumber", "Batch / Lot Number", 14),
-            ("ExpiryDate", "Expiry Date", 12),
-            ("RetestDate", "Retest Date", 12),
-            ("DateReceived", "Date Received", 12),
-            ("StorageLocationID", "Storage Location ID", 12),
-            ("Status", "Status", 11),
-            ("OpenedDate", "Opened Date", 12),
-            ("DisposalDate", "Disposal Date", 12),
-            ("DisposalReason", "Disposal Reason", 14),
-            ("Notes", "Notes", 24),
-            ("HelperContainerNum", "Helper Container Num", 12),
-            ("HelperBarcodeNum", "Helper Barcode Num", 12),
-        ],
+        "columns": _cols(
+            ("ContainerID", 12),
+            ("Barcode", 11),
+            ("ProductID", 11),
+            ("BatchLotNumber", 14),
+            ("ExpiryDate", 12),
+            ("RetestDate", 12),
+            ("DateReceived", 12),
+            ("StorageLocationID", 12),
+            ("Status", 11),
+            ("OpenedDate", 12),
+            ("DisposalDate", 12),
+            ("DisposalReason", 14),
+            ("Notes", 24),
+            ("HelperContainerNum", 12),
+            ("HelperBarcodeNum", 12),
+        ),
         # calculated/derived columns: numeric mirrors of ContainerID/Barcode
         # used by MAX() for next-ID generation; protected (D-017)
         "calculated_columns": [
@@ -117,129 +133,129 @@ TABLES = {
         "sheet": "Transactions",
         "key": "TransactionID",
         "start_col": 1,
-        "columns": [
-            ("TransactionID", "Transaction ID", 12),
-            ("Timestamp", "Timestamp", 17),
-            ("Operator", "Operator", 12),
-            ("Barcode", "Barcode", 11),
-            ("ContainerID", "Container ID", 12),
-            ("ProductID", "Product ID", 11),
-            ("ProductName", "Product Name", 28),
-            ("TransactionType", "Transaction Type", 14),
-            ("PreviousStatus", "Previous Status", 14),
-            ("NewStatus", "New Status", 12),
-            ("PreviousLocation", "Previous Location", 14),
-            ("NewLocation", "New Location", 14),
-            ("BatchLotNumber", "Batch / Lot Number", 14),
-            ("Reason", "Reason", 14),
-            ("Reference", "Reference", 12),
-            ("Notes", "Notes", 24),
-        ],
+        "columns": _cols(
+            ("TransactionID", 12),
+            ("Timestamp", 17),
+            ("Operator", 12),
+            ("Barcode", 11),
+            ("ContainerID", 12),
+            ("ProductID", 11),
+            ("ProductName", 28),
+            ("TransactionType", 14),
+            ("PreviousStatus", 14),
+            ("NewStatus", 12),
+            ("PreviousLocation", 14),
+            ("NewLocation", 14),
+            ("BatchLotNumber", 14),
+            ("Reason", 14),
+            ("Reference", 12),
+            ("Notes", 24),
+        ),
     },
     "tblSuppliers": {
         "sheet": "Suppliers",
         "key": "SupplierID",
         "start_col": 1,
-        "columns": [
-            ("SupplierID", "Supplier ID", 12),
-            ("SupplierName", "Supplier Name", 24),
-            ("ContactName", "Contact Name", 18),
-            ("Email", "Email", 22),
-            ("Phone", "Phone", 14),
-            ("Website", "Website", 20),
-            ("Address", "Address", 24),
-            ("Notes", "Notes", 20),
-        ],
+        "columns": _cols(
+            ("SupplierID", 12),
+            ("SupplierName", 24),
+            ("ContactName", 18),
+            ("Email", 22),
+            ("Phone", 14),
+            ("Website", 20),
+            ("Address", 24),
+            ("Notes", 20),
+        ),
     },
     "tblLocations": {
         "sheet": "Locations",
         "key": "StorageLocationID",
         "start_col": 1,
-        "columns": [
-            ("StorageLocationID", "Storage Location ID", 14),
-            ("LocationName", "Location Name", 22),
-            ("LocationType", "Location Type", 14),
-            ("Description", "Description", 22),
-            ("Active", "Active", 8),
-        ],
+        "columns": _cols(
+            ("StorageLocationID", 14),
+            ("LocationName", 22),
+            ("LocationType", 14),
+            ("Description", 22),
+            ("Active", 8),
+        ),
     },
     "tblSettings": {
         "sheet": "Settings",
         "key": "SettingKey",
         "start_col": 1,
-        "columns": [
-            ("SettingKey", "Setting Key", 24),
-            ("SettingValue", "Setting Value", 16),
-            ("Description", "Description", 40),
-        ],
+        "columns": _cols(
+            ("SettingKey", 24),
+            ("SettingValue", 16),
+            ("Description", 40),
+        ),
     },
     "tblStatusList": {
         "sheet": "Settings",
         "key": "StatusValue",
         "start_col": 1,
-        "columns": [
-            ("StatusValue", "Status Value", 16),
-            ("Label", "Label", 24),
-        ],
+        "columns": _cols(
+            ("StatusValue", 16),
+            ("Label", 24),
+        ),
     },
     "tblTransactionTypeList": {
         "sheet": "Settings",
         "key": "TransactionTypeValue",
         "start_col": 1,
-        "columns": [
-            ("TransactionTypeValue", "Transaction Type Value", 20),
-            ("Label", "Label", 24),
-        ],
+        "columns": _cols(
+            ("TransactionTypeValue", 20),
+            ("Label", 24),
+        ),
     },
     "tblExpiryClassList": {
         "sheet": "Settings",
         "key": "ExpiryClassValue",
         "start_col": 1,
-        "columns": [
-            ("ExpiryClassValue", "Expiry Class Value", 18),
-            ("Label", "Label", 24),
-        ],
+        "columns": _cols(
+            ("ExpiryClassValue", 18),
+            ("Label", 24),
+        ),
     },
     "tblScanResults": {
         "sheet": "Scan",
         "key": "Barcode",
         "start_col": 4,
         "authoritative": False,
-        "columns": [
-            ("Barcode", "Barcode", 11),
-            ("ContainerID", "Container ID", 12),
-            ("ProductID", "Product ID", 11),
-            ("ProductName", "Product Name", 26),
-            ("BatchLotNumber", "Batch / Lot Number", 14),
-            ("ExpiryDate", "Expiry Date", 12),
-            ("StorageLocationID", "Storage Location ID", 12),
-            ("LocationName", "Location Name", 18),
-            ("Status", "Status", 11),
-            ("OpenedDate", "Opened Date", 12),
-            ("ExpiryClass", "Expiry Class", 13),
-            ("DuplicateFlag", "Duplicate Flag", 12),
-            ("LookupState", "Lookup State", 12),
-        ],
+        "columns": _cols(
+            ("Barcode", 11),
+            ("ContainerID", 12),
+            ("ProductID", 11),
+            ("ProductName", 26),
+            ("BatchLotNumber", 14),
+            ("ExpiryDate", 12),
+            ("StorageLocationID", 12),
+            ("LocationName", 18),
+            ("Status", 11),
+            ("OpenedDate", 12),
+            ("ExpiryClass", 13),
+            ("DuplicateFlag", 12),
+            ("LookupState", 12),
+        ),
     },
     "tblReceiveStaging": {
         "sheet": "Receiving",
         "key": "ProductID",
         "start_col": 2,
         "authoritative": False,
-        "columns": [
-            ("ProductID", "Product ID", 11),
-            ("ProductName", "Product Name", 26),
-            ("NextContainerID", "Next Container ID", 12),
-            ("NextBarcode", "Next Barcode", 11),
-            ("BatchLotNumber", "Batch / Lot Number", 14),
-            ("ExpiryDate", "Expiry Date", 12),
-            ("RetestDate", "Retest Date", 12),
-            ("StorageLocationID", "Storage Location ID", 12),
-            ("Status", "Status", 11),
-            ("Quantity", "Quantity", 10),
-            ("ValidationMessage", "Validation Message", 34),
-            ("ReadinessState", "Readiness State", 14),
-        ],
+        "columns": _cols(
+            ("ProductID", 11),
+            ("ProductName", 26),
+            ("NextContainerID", 12),
+            ("NextBarcode", 11),
+            ("BatchLotNumber", 14),
+            ("ExpiryDate", 12),
+            ("RetestDate", 12),
+            ("StorageLocationID", 12),
+            ("Status", 11),
+            ("Quantity", 10),
+            ("ValidationMessage", 34),
+            ("ReadinessState", 14),
+        ),
     },
 }
 

@@ -1,4 +1,4 @@
-﻿Setting Key,Setting Value,Description
+﻿SettingKey,SettingValue,Description
 ExpiryWarningDays30,30,Expiry warning band: days until expiry to flag (30)
 ExpiryWarningDays60,60,Expiry warning band: days until expiry to flag (60)
 ExpiryWarningDays90,90,Expiry warning band: days until expiry to flag (90)

@@ -53,8 +53,8 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 ### D-004 — Desktop Excel verification deferred to owner environment
 
 - **Date:** 2026-08-17
-- **Status:** Accepted
-- **Context:** The build machine has no Microsoft Office/LibreOffice/WPS installation, so desktop Excel cannot run here without changing system configuration.
+- **Status:** Superseded (by D-020; Excel installed 2026-08-17 and runtime acceptance passed 29/29)
+- **Context:** The build machine originally had no Microsoft Office/LibreOffice/WPS installation, so desktop Excel could not run here without changing system configuration.
 - **Decision:** Non-VBA testing in this phase uses (1) openpyxl structural inspection, (2) independent formula evaluation with the `formulas` library, and (3) a LibreOffice headless open/recalc smoke test where obtainable. Desktop Excel open/recalc/visual verification is a defined owner-side step before the contract freeze. No claim of desktop Excel testing is made.
 - **Alternatives considered:** Installing Office (changes system config; not authorized); skipping verification (violates evidence rules).
 - **Consequences:** Evidence labels tests accurately as structural/independent/LibreOffice-smoke; owner performs the desktop gate.
@@ -225,3 +225,14 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 - **Consequences:** Dashboard now covers Req §18 views; tests reconcile each view to source Tables.
 - **Files/components affected:** Dashboard builder, contract F-09/F-10, tests.
 - **Supersedes:** None
+
+### D-020 — Excel runtime acceptance executed and passed; structured references and interface formulas corrected
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** Microsoft desktop Excel 16.0.20228.20190 (x64) was installed and activated on the build machine. The architecture acceptance now runs against the real Excel via COM. The runtime exposed two macro-free defects the static/formulas tests had masked.
+- **Decision:** (1) The Excel COM runtime acceptance (`scripts/excel_runtime_test.ps1`) is the authoritative check; it passed 29/29. (2) Excel Table header text must equal the column name (e.g., `ExpiryDate`) so structured references resolve — previously `tblContainers[ExpiryDate]` evaluated to `#REF!`. (3) Receiving interface formulas use direct `$D$7` references instead of the `rngReceiveProductID` named range to avoid Excel's implicit-intersection injection. (4) COM tests force `@` text format when writing barcodes/IDs.
+- **Alternatives considered:** Leaving the `#REF!` and implicit-intersection defects (rejected — they break the workbook in real Excel); renaming columns (rejected — contract freeze forbids it).
+- **Consequences:** Workbook now verifiably opens, recalculates, and reconciles in real Microsoft Excel with zero formula errors and no save/reopen drift; evidence recorded in `evidence/excel-runtime/`.
+- **Files/components affected:** `scripts/build_workbook.py`, `scripts/wb_schema.py`, `scripts/excel_runtime_test.ps1`, `tests/non-vba-results.md`, `evidence/excel-runtime/`.
+- **Supersedes:** D-004 (deferral) — superseded by the executed runtime acceptance.

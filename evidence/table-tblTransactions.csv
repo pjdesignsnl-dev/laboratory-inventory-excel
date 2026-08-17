@@ -1,4 +1,4 @@
-﻿Transaction ID,Timestamp,Operator,Barcode,Container ID,Product ID,Product Name,Transaction Type,Previous Status,New Status,Previous Location,New Location,Batch / Lot Number,Reason,Reference,Notes
+﻿TransactionID,Timestamp,Operator,Barcode,ContainerID,ProductID,ProductName,TransactionType,PreviousStatus,NewStatus,PreviousLocation,NewLocation,BatchLotNumber,Reason,Reference,Notes
 T00000001,2026-01-10T09:00:00,LAB-USER,0000001,C000001,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0001,,PO-1001,Tips box 1 received
 T00000002,2026-01-10T09:05:00,LAB-USER,0000002,C000002,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0001,,PO-1001,Tips box 2 received
 T00000003,2026-03-05T10:00:00,LAB-USER,0000003,C000003,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0002,,PO-1002,Tips box 3 received
