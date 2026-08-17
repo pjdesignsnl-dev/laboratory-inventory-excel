@@ -1,0 +1,7 @@
+﻿Storage Location ID,Location Name,Location Type,Description,Active
+LOC0001,Chemical Cabinet 1,Cabinet,Flammables,True
+LOC0002,Chemical Cabinet 2,Cabinet,Acids,True
+LOC0003,Fridge 1,Fridge,Cold reagents,True
+LOC0004,Plastics Shelf A,Shelf,"Pipette tips, tubes, gloves",True
+LOC0005,Plastics Shelf B,Shelf,"Filters, plates",True
+LOC0006,Freezer -20C,Freezer,Frozen reagents,True

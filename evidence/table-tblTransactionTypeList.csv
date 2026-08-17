@@ -1,0 +1,10 @@
+﻿Transaction Type Value,Label
+Receive,Create/activate a container
+TakeOpen,Take from storage / open
+Return,Return to storage
+Transfer,Change storage location
+Dispose,Remove from inventory
+MarkExpired,Mark as expired
+MarkDamaged,Mark as damaged
+MarkMissing,Mark as missing/lost
+Adjustment,Correction/reversal (compensating)

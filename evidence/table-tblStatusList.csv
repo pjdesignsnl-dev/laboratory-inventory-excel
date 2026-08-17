@@ -1,0 +1,8 @@
+﻿Status Value,Label
+Available,"In storage, usable"
+InUse,"Taken/opened, out of storage"
+Reserved,Held for specific purpose
+Expired,"Past expiry, unusable"
+Damaged,Physically unusable
+Disposed,Removed from inventory
+Missing,Cannot be located

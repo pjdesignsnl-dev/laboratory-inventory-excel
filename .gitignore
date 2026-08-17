@@ -29,3 +29,10 @@ Thumbs.db
 # Generated output not explicitly selected for release
 build/
 dist/
+
+# Workspace-local tooling (openpyxl/formulas installs, LibreOffice portable)
+.tools/
+
+# Python bytecode cache
+__pycache__/
+*.pyc

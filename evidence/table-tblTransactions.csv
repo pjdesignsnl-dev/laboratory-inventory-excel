@@ -1,0 +1,32 @@
+﻿Transaction ID,Timestamp,Operator,Barcode,Container ID,Product ID,Product Name,Transaction Type,Previous Status,New Status,Previous Location,New Location,Batch / Lot Number,Reason,Reference,Notes
+T00000001,2026-01-10T09:00:00,LAB-USER,0000001,C000001,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0001,,PO-1001,Tips box 1 received
+T00000002,2026-01-10T09:05:00,LAB-USER,0000002,C000002,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0001,,PO-1001,Tips box 2 received
+T00000003,2026-03-05T10:00:00,LAB-USER,0000003,C000003,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0002,,PO-1002,Tips box 3 received
+T00000004,2026-03-06T14:20:00,LAB-USER,0000003,C000003,P000001,Pipette Tips 200 uL (96/box),TakeOpen,Available,InUse,LOC0004,(none),LOT0002,,,Tips box 3 opened
+T00000005,2026-03-07T09:30:00,LAB-USER,0000003,C000003,P000001,Pipette Tips 200 uL (96/box),Return,InUse,Available,(none),LOC0004,LOT0002,,,Tips box 3 returned (opened)
+T00000006,2026-02-20T11:00:00,LAB-USER,0000004,C000004,P000002,Laboratory Tubes 15 mL (100/box),Receive,(none),Available,(none),LOC0004,LOT0010,,PO-1003,Tubes box 1 received
+T00000007,2026-02-20T11:05:00,LAB-USER,0000005,C000005,P000002,Laboratory Tubes 15 mL (100/box),Receive,(none),Available,(none),LOC0004,LOT0010,,PO-1003,Tubes box 2 received
+T00000008,2026-05-11T13:00:00,LAB-USER,0000006,C000006,P000002,Laboratory Tubes 15 mL (100/box),Receive,(none),Available,(none),LOC0005,LOT0011,,PO-1004,Tubes box 3 received
+T00000009,2026-05-12T08:45:00,LAB-USER,0000006,C000006,P000002,Laboratory Tubes 15 mL (100/box),TakeOpen,Available,InUse,LOC0005,(none),LOT0011,,,Tubes box 3 in use
+T00000010,2025-11-01T10:30:00,LAB-USER,0000007,C000007,P000003,Ethanol 96% (500 mL),Receive,(none),Available,(none),LOC0001,LOT0020,,PO-1005,Ethanol A received
+T00000011,2025-11-01T10:32:00,LAB-USER,0000008,C000008,P000003,Ethanol 96% (500 mL),Receive,(none),Available,(none),LOC0001,LOT0020,,PO-1005,Ethanol B received
+T00000012,2026-06-20T09:15:00,LAB-USER,0000009,C000009,P000003,Ethanol 96% (500 mL),Receive,(none),Available,(none),LOC0001,LOT0021,,PO-1006,Ethanol C received
+T00000013,2026-07-01T15:10:00,LAB-USER,0000009,C000009,P000003,Ethanol 96% (500 mL),TakeOpen,Available,InUse,LOC0001,(none),LOT0021,,,Ethanol C opened
+T00000014,2026-07-02T10:00:00,LAB-USER,0000009,C000009,P000003,Ethanol 96% (500 mL),Return,InUse,Available,(none),LOC0001,LOT0021,,,Ethanol C returned (opened)
+T00000015,2026-04-18T14:00:00,LAB-USER,0000010,C000010,P000004,Methanol 99.8% (1 L),Receive,(none),Available,(none),LOC0001,LOT0030,,PO-1007,Methanol A received
+T00000016,2026-04-18T14:05:00,LAB-USER,0000011,C000011,P000004,Methanol 99.8% (1 L),Receive,(none),Available,(none),LOC0002,LOT0030,,PO-1007,Methanol B received
+T00000017,2026-06-10T11:30:00,LAB-USER,0000011,C000011,P000004,Methanol 99.8% (1 L),TakeOpen,Available,InUse,LOC0002,(none),LOT0030,,,Methanol B in use
+T00000018,2026-05-01T09:00:00,LAB-USER,0000012,C000012,P000005,"Reagent A (Tris buffer, 500 mL)",Receive,(none),Available,(none),LOC0003,LOT0040,,PO-1008,Tris reagent received
+T00000019,2026-05-15T09:30:00,LAB-USER,0000013,C000013,P000005,"Reagent A (Tris buffer, 500 mL)",Receive,(none),Available,(none),LOC0003,LOT0041,,PO-1009,Tris reagent 2 received
+T00000020,2026-01-20T10:00:00,LAB-USER,0000014,C000014,P000005,"Reagent A (Tris buffer, 500 mL)",Receive,(none),Available,(none),LOC0003,LOT0042,,PO-1010,Tris reagent 3 received
+T00000021,2026-07-02T08:00:00,LAB-USER,0000014,C000014,P000005,"Reagent A (Tris buffer, 500 mL)",MarkExpired,Available,Expired,LOC0003,LOC0003,LOT0042,Expired,,Tris reagent 3 expired
+T00000022,2026-04-01T12:00:00,LAB-USER,0000015,C000015,P000006,Nitrile Gloves M (100/box),Receive,(none),Available,(none),LOC0004,LOT0050,,PO-1011,Gloves box 1 received
+T00000023,2026-04-01T12:02:00,LAB-USER,0000016,C000016,P000006,Nitrile Gloves M (100/box),Receive,(none),Available,(none),LOC0004,LOT0050,,PO-1011,Gloves box 2 received
+T00000024,2026-07-10T16:00:00,LAB-USER,0000017,C000017,P000006,Nitrile Gloves M (100/box),Receive,(none),Available,(none),LOC0004,LOT0051,,PO-1012,Gloves box 3 received
+T00000025,2026-07-11T09:20:00,LAB-USER,0000017,C000017,P000006,Nitrile Gloves M (100/box),Dispose,Available,Disposed,LOC0004,(none),LOT0051,Used Up,,Gloves box 3 used up
+T00000026,2026-08-10T10:10:00,LAB-USER,0000018,C000018,P000003,Ethanol 96% (500 mL),Receive,(none),Available,(none),LOC0001,LOT0022,,PO-1013,Ethanol D received
+T00000027,2026-08-12T11:00:00,LAB-USER,0000019,C000019,P000002,Laboratory Tubes 15 mL (100/box),Receive,(none),Available,(none),LOC0004,LOT0012,,PO-1014,Tubes box 4 received
+T00000028,2026-08-13T13:45:00,LAB-USER,0000019,C000019,P000002,Laboratory Tubes 15 mL (100/box),Transfer,Available,Available,LOC0004,LOC0005,LOT0012,,,Tubes box 4 transferred
+T00000029,2026-08-14T09:00:00,LAB-USER,0000019,C000019,P000002,Laboratory Tubes 15 mL (100/box),Adjustment,Available,Reserved,LOC0005,LOC0005,LOT0012,Correction,,Tubes box 4 reserved
+T00000030,2026-08-15T14:00:00,LAB-USER,0000020,C000020,P000001,Pipette Tips 200 uL (96/box),Receive,(none),Available,(none),LOC0004,LOT0003,,PO-1015,Tips box 4 received
+T00000031,2026-08-16T10:00:00,LAB-USER,0000020,C000020,P000001,Pipette Tips 200 uL (96/box),MarkMissing,Available,Missing,LOC0004,(none),LOT0003,Missing,,Tips box 4 missing
