@@ -34,7 +34,10 @@ TAB_COLORS = {
 # ---------------------------------------------------------------- lists
 PRODUCT_TYPES = ["Consumable", "Chemical", "Reagent"]
 CATEGORIES = ["General", "Pipette Tips", "Tubes", "Solvent", "Reagent", "Consumable"]
-STATUSES = ["Available", "InUse", "Reserved", "Expired", "Damaged", "Disposed", "Missing"]
+# Smallest practical v1 status set (D-016): Reserved removed — no complete
+# reservation workflow exists in v1, and a state only enterable via Adjustment
+# must not be retained.
+STATUSES = ["Available", "InUse", "Expired", "Damaged", "Disposed", "Missing"]
 TRANSACTION_TYPES = [
     "Receive", "TakeOpen", "Return", "Transfer", "Dispose",
     "MarkExpired", "MarkDamaged", "MarkMissing", "Adjustment",
@@ -75,6 +78,12 @@ TABLES = {
             ("HelperAvailableStock", "Available Stock (formula)", 14),
             ("HelperStockClass", "Stock Class (formula)", 12),
         ],
+        # calculated/derived columns: never manually edited; protected in the
+        # workbook; excluded from authoritative data entry (D-017)
+        "calculated_columns": [
+            "HelperAvailableStock",
+            "HelperStockClass",
+        ],
     },
     "tblContainers": {
         "sheet": "Containers",
@@ -96,6 +105,12 @@ TABLES = {
             ("Notes", "Notes", 24),
             ("HelperContainerNum", "Helper Container Num", 12),
             ("HelperBarcodeNum", "Helper Barcode Num", 12),
+        ],
+        # calculated/derived columns: numeric mirrors of ContainerID/Barcode
+        # used by MAX() for next-ID generation; protected (D-017)
+        "calculated_columns": [
+            "HelperContainerNum",
+            "HelperBarcodeNum",
         ],
     },
     "tblTransactions": {

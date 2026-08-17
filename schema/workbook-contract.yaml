@@ -1,4 +1,4 @@
-contract_version: 0.1.0
+contract_version: 0.2.0
 status: draft
 vba_authorized: false
 product:
@@ -99,6 +99,8 @@ tables:
       - { name: ReorderQuantity, type: integer, mandatory: true, default: 1 }
       - { name: Active, type: boolean, mandatory: true, default: true }
       - { name: Notes, type: text, mandatory: false }
+      - { name: HelperAvailableStock, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column (D-018): Status=Available AND (ExpiryDate blank OR >= TODAY()); protected, never manually edited" }
+      - { name: HelperStockClass, type: text, mandatory: false, calculated: true, authoritative: false, note: "Formula column: OutOfStock/Reorder/Low/OK; protected, never manually edited" }
   - name: tblContainers
     sheet: Containers
     primary_key: ContainerID
@@ -117,6 +119,8 @@ tables:
       - { name: DisposalDate, type: date, mandatory: false }
       - { name: DisposalReason, type: list, mandatory: false, list: ["Used Up", Expired, Damaged, Missing, Other] }
       - { name: Notes, type: text, mandatory: false }
+      - { name: HelperContainerNum, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column: numeric mirror of ContainerID for MAX(); protected" }
+      - { name: HelperBarcodeNum, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column: numeric mirror of Barcode for MAX(); protected" }
   - name: tblTransactions
     sheet: Transactions
     primary_key: TransactionID
@@ -262,7 +266,7 @@ named_ranges:
 controlled_values:
   product_types: [Consumable, Chemical, Reagent]
   categories: [General, "Pipette Tips", Tubes, Solvent, Reagent, Consumable]
-  container_statuses: [Available, InUse, Reserved, Expired, Damaged, Disposed, Missing]
+  container_statuses: [Available, InUse, Expired, Damaged, Disposed, Missing]
   transaction_types: [Receive, TakeOpen, Return, Transfer, Dispose, MarkExpired, MarkDamaged, MarkMissing, Adjustment]
   expiry_classes: [Expired, ExpiringSoon, Valid, NoExpiry, Invalid]
   location_types: [Cabinet, Shelf, Fridge, Freezer, Room, Other]
@@ -288,10 +292,6 @@ state_transitions:
   - { from: InUse, transaction: MarkExpired, to: Expired, class: CONFIRM }
   - { from: InUse, transaction: MarkDamaged, to: Damaged, class: CONFIRM }
   - { from: InUse, transaction: MarkMissing, to: Missing, class: CONFIRM }
-  - { from: Reserved, transaction: Return, to: Available, class: ALLOW }
-  - { from: Reserved, transaction: Transfer, to: Reserved, class: ALLOW }
-  - { from: Reserved, transaction: TakeOpen, to: InUse, class: CONFIRM }
-  - { from: Reserved, transaction: Dispose, to: Disposed, class: CONFIRM }
   - { from: Expired, transaction: Dispose, to: Disposed, class: ALLOW }
   - { from: Expired, transaction: Transfer, to: Expired, class: ALLOW }
   - { from: Damaged, transaction: Dispose, to: Disposed, class: ALLOW }
@@ -300,14 +300,16 @@ state_transitions:
   - { from: any, transaction: Adjustment, to: any, class: CONFIRM }
 
 formulas:
-  - { id: F-01, name: AvailableStock, formula: 'COUNTIFS(tblContainers[ProductID],<pid>,tblContainers[Status],"Available")', compatibility: "2021/2024/365", note: "single qualifying status (D-006)" }
+  - { id: F-01, name: AvailableStock, formula: 'COUNTIFS(tblContainers[ProductID],<pid>,tblContainers[Status],"Available") - COUNTIFS(tblContainers[ProductID],<pid>,tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())', compatibility: "2021/2024/365", note: "D-018: usable = Status=Available AND (ExpiryDate blank OR >= TODAY()); expired-by-date excluded without mutating Status" }
   - { id: F-02, name: ReorderClass, formula: 'IF(Available=0,"OutOfStock",IF(Available<Min,"Reorder",IF(Available<Target,"Low","OK")))', compatibility: "2021/2024/365" }
   - { id: F-03, name: ExpiryClass, formula: 'IF(ExpiryDate="","NoExpiry",IF(ExpiryDate<TODAY(),"Expired",IF(ExpiryDate<=TODAY()+D30,"ExpiringSoon",...)))', compatibility: "2021/2024/365", note: "bands from tblSettings" }
   - { id: F-04, name: DuplicateBarcode, formula: 'COUNTIF(tblContainers[Barcode],<bc>)>1', compatibility: "2021/2024/365" }
-  - { id: F-05, name: LookupState, formula: 'IF(<bc>="","EMPTY",IF(COUNTIF(tblContainers[Barcode],<bc>)=0,"UNKNOWN",IF(COUNTIF(...)>1,"DUPLICATE","FOUND")))', compatibility: "2021/2024/365" }
-  - { id: F-06, name: NextContainerID, formula: 'TEXT(MAX(VALUE(SUBSTITUTE(tblContainers[ContainerID],"C","")))+1,"C000000")', compatibility: "2021/2024/365", note: "array-less via MAX over column" }
-  - { id: F-07, name: NextBarcode, formula: 'TEXT(MAX(VALUE(tblContainers[Barcode]))+1,"0000000")', compatibility: "2021/2024/365" }
-  - { id: F-08, name: DashboardTotals, formula: 'COUNTIF/COUNTIFS against source tables', compatibility: "2021/2024/365" }
+  - { id: F-05, name: LookupState, formula: 'IF(<bc>="","EMPTY",IF(ISNA(MATCH(<bc>,tblContainers[Barcode],0)),"UNKNOWN",IF(COUNTIF(...)>1,"DUPLICATE","FOUND")))', compatibility: "2021/2024/365" }
+  - { id: F-06, name: NextContainerID, formula: 'TEXT(MAX(tblContainers[HelperContainerNum])+1,"C000000")', compatibility: "2021/2024/365", note: "uses protected helper column" }
+  - { id: F-07, name: NextBarcode, formula: 'TEXT(MAX(tblContainers[HelperBarcodeNum])+1,"0000000")', compatibility: "2021/2024/365", note: "uses protected helper column" }
+  - { id: F-08, name: DashboardTotals, formula: 'COUNTIF/COUNTIFS against source tables; total available uses D-018 semantics', compatibility: "2021/2024/365" }
+  - { id: F-09, name: DashboardFrequentlyUsed, formula: 'COUNTIFS(tblTransactions[ProductID],<pid>,tblTransactions[TransactionType],"TakeOpen")', compatibility: "2021/2024/365", note: "per-product TakeOpen count" }
+  - { id: F-10, name: DashboardByLocation, formula: 'COUNTIFS(tblContainers[StorageLocationID],<loc>,tblContainers[Status],"Available") - COUNTIFS(...ExpiryDate,"<"&TODAY())', compatibility: "2021/2024/365", note: "usable available per location (D-018)" }
 
 protection:
   - { scope: workbook, action: protect_structure, password: "", note: "prevent sheet rename/delete" }

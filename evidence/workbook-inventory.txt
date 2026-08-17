@@ -37,7 +37,7 @@ tblProducts on Products ref A4:U10
     HelperAvailableStock             Available Stock (formula)
     HelperStockClass                 Stock Class (formula)
 
-tblContainers on Containers ref A4:O24
+tblContainers on Containers ref A4:O25
     ContainerID                      Container ID
     Barcode                          Barcode
     ProductID                        Product ID
@@ -94,15 +94,15 @@ tblSettings on Settings ref A5:C13
     SettingValue                     Setting Value
     Description                      Description
 
-tblStatusList on Settings ref A16:B23
+tblStatusList on Settings ref A16:B22
     StatusValue                      Status Value
     Label                            Label
 
-tblTransactionTypeList on Settings ref A26:B35
+tblTransactionTypeList on Settings ref A25:B34
     TransactionTypeValue             Transaction Type Value
     Label                            Label
 
-tblExpiryClassList on Settings ref A38:B43
+tblExpiryClassList on Settings ref A37:B42
     ExpiryClassValue                 Expiry Class Value
     Label                            Label
 
@@ -168,9 +168,9 @@ NAMED RANGES:
   rngScanStatusMessage -> 'Scan'!$D9:$D9
 
 FORMULAS (sampled, one per category):
-  Products T (AvailableStock): '=COUNTIFS(tblContainers[ProductID],A5,tblContainers[Status],"Available")'
+  Products T (AvailableStock): '=COUNTIFS(tblContainers[ProductID],A5,tblContainers[Status],"Available")-COUNTIFS(tblContainers[ProductID],A5,tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())'
   Products U (StockClass): '=IF(T5=0,"OutOfStock",IF(T5<O5,"Reorder",IF(T5<P5,"Low","OK")))'
-  Dashboard B6: '=COUNTIF(tblContainers[Status],"Available")'
+  Dashboard B6: '=COUNTIF(tblContainers[Status],"Available")-COUNTIFS(tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())'
 
 VALIDATION RULES:
   Scan: custom =AND(LEN(rngScanInput)=7,ISNUMBER(VALUE(rngScanInput))) -> D7

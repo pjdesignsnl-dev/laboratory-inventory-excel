@@ -72,7 +72,10 @@ Primary key: `ProductID` (unique, nonblank).
 | Active | Boolean | Yes | TRUE | `TRUE`/`FALSE` list |
 | Notes | Text | No | — | Optional |
 
-**Formula columns (protected):** none in the table; stock/reorder computed on Dashboard and Products via COUNTIFS against `tblContainers` (not stored — integrity).
+**Formula columns (protected, calculated, non-authoritative — D-017):**
+- `HelperAvailableStock` — usable available container count for the product (D-018 semantics). Formula-driven; protected; never manually edited.
+- `HelperStockClass` — `OutOfStock`/`Reorder`/`Low`/`OK`. Formula-driven; protected; never manually edited.
+These helper columns are part of the Table (stable names, exact columns) and are explicitly documented in the contract; they are **not** sources of truth — the stock source of truth is the `tblContainers` data + the D-018 formula.
 
 ### 3.2 `tblContainers` (sheet `Containers`)
 
@@ -88,13 +91,16 @@ Primary key: `ContainerID` (unique, nonblank). Alternate key: `Barcode` (unique,
 | RetestDate | Date | No | — | Optional advisory only |
 | DateReceived | Date | Yes | — | <= TODAY (validation) |
 | StorageLocationID | Text (FK) | Yes | LOC0001 | Must exist in `tblLocations` |
-| Status | Text (list) | Yes | Available | List from `tblStatusList`: `Available`, `InUse`, `Reserved`, `Expired`, `Damaged`, `Disposed`, `Missing` |
+| Status | Text (list) | Yes | Available | List from `tblStatusList`: `Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing` |
 | OpenedDate | Date | No | — | Set when opened (flag semantics) |
 | DisposalDate | Date | No | — | Set on disposal/expiry-marking |
 | DisposalReason | Text (list) | No | — | List: `Used Up`, `Expired`, `Damaged`, `Missing`, `Other` |
 | Notes | Text | No | — | Optional |
 
-**Formula columns (protected):** none stored; lookups (product name, expiry class, location name, stock position) are formula-driven on Dashboard/Scan/Products.
+**Formula columns (protected, calculated, non-authoritative — D-017):**
+- `HelperContainerNum` — numeric mirror of `ContainerID` (used by `MAX()` for next-ID generation).
+- `HelperBarcodeNum` — numeric mirror of `Barcode` (used by `MAX()` for next-barcode generation).
+Formula-driven; protected; never manually edited; documented in the contract.
 
 ### 3.3 `tblTransactions` (sheet `Transactions`)
 
@@ -194,7 +200,7 @@ tblTransactions   * ──── 1 tblContainers        (Barcode)
 |---|---|---|
 | ProductType | `tblStatusList`? No — inline list | `Consumable`, `Chemical`, `Reagent` |
 | Category | inline list | `General`, `Pipette Tips`, `Tubes`, `Solvent`, `Reagent`, `Consumable` |
-| ContainerStatus | `tblStatusList` | `Available`, `InUse`, `Reserved`, `Expired`, `Damaged`, `Disposed`, `Missing` |
+| ContainerStatus | `tblStatusList` | `Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing` |
 | TransactionType | `tblTransactionTypeList` | `Receive`, `TakeOpen`, `Return`, `Transfer`, `Dispose`, `MarkExpired`, `MarkDamaged`, `MarkMissing`, `Adjustment` |
 | ExpiryClass | `tblExpiryClassList` | `Expired`, `ExpiringSoon`, `Valid`, `NoExpiry`, `Invalid` |
 | LocationType | inline list | `Cabinet`, `Shelf`, `Fridge`, `Freezer`, `Room`, `Other` |
@@ -236,7 +242,7 @@ No separate batch table in v1: a received lot is a Container attribute. Batch-le
 
 See `docs/status-transition-matrix.md` for the full matrix. Summary:
 
-- **Statuses:** `Available`, `InUse`, `Reserved`, `Expired`, `Damaged`, `Disposed`, `Missing`.
+- **Statuses:** `Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing` (D-016: `Reserved` removed — no complete reservation workflow exists in v1).
 - **Opened is a flag** (`OpenedDate`), not a status. A returned opened container may be `Available` again while retaining opened history (default assumption 12).
 - **Transactions:** `Receive`, `TakeOpen`, `Return`, `Transfer`, `Dispose`, `MarkExpired`, `MarkDamaged`, `MarkMissing`, `Adjustment`.
 - **Append-only:** history is never overwritten; corrections are compensating `Adjustment` transactions (invariant 7).
@@ -248,11 +254,23 @@ See `docs/status-transition-matrix.md` for the full matrix. Summary:
 
 All figures below are **formula-derived**, never stored as editable numbers (default assumption 10; Req §12).
 
-### 9.1 Available stock
+### 9.1 Available stock (D-018)
 ```
-AvailableCount = COUNTIFS(tblContainers[ProductID], <pid>, tblContainers[Status], "Available")
+UsableAvailable =
+  COUNTIFS(tblContainers[ProductID], <pid>, tblContainers[Status], "Available")
+  - COUNTIFS(tblContainers[ProductID], <pid>, tblContainers[Status], "Available",
+             tblContainers[ExpiryDate], "<" & TODAY())
 ```
-Statuses qualifying as available stock: **`Available` only** (decision D-006). `InUse`/`Reserved`/terminal states are excluded.
+Equivalent semantics: `Status="Available" AND (ExpiryDate blank OR ExpiryDate >= TODAY())`.
+The subtraction form is used because COUNTIFS cannot express the OR directly in
+one range pair; it is 2021-compatible and auditable.
+
+Statuses qualifying: **`Available` only** (decision D-006), **and** not expired
+by date (decision D-018). A container whose `Status` is `Available` but whose
+`ExpiryDate < TODAY()` is **immediately excluded** from stock and reorder
+calculations — its stored `Status` is **not** silently mutated (the clock does
+not change audit state); the scan interface flags it as expired-by-date and
+blocks TakeOpen, guiding the operator to record `MarkExpired` or `Dispose`.
 
 ### 9.2 Reorder classification (per product)
 ```
@@ -275,13 +293,14 @@ Bands are read from `tblSettings` (`ExpiryWarningDays30/60/90`); a container is 
 
 ### 9.4 Dashboard statistics
 - Total active products: `COUNTIFS(tblProducts[Active], TRUE)`
-- Total available containers: `COUNTIF(tblContainers[Status], "Available")`
+- Total available containers (usable): `COUNTIF(tblContainers[Status], "Available") - COUNTIFS(tblContainers[Status], "Available", tblContainers[ExpiryDate], "<"&TODAY())` (D-018)
 - Low-stock products: `COUNTIFS` over a per-product helper column
 - Out-of-stock products: same
 - Expired containers: `COUNTIF(tblContainers[ExpiryDate],"<"&TODAY())` (status-independent for the alarm) plus status-aware variants
 - Expiring soon (30/60/90): COUNTIFS on expiry bands
 - Recently received/taken (last 14 days): COUNTIFS on `tblTransactions[Timestamp]`
-- Frequently used: `COUNTIF` on `tblTransactions[ProductID]` (top by count)
+- Frequently used products: `COUNTIFS(tblTransactions[ProductID], <pid>, tblTransactions[TransactionType], "TakeOpen")` per product (F-09)
+- Inventory by storage location: `COUNTIFS(tblContainers[StorageLocationID], <loc>, tblContainers[Status], "Available") - COUNTIFS(...ExpiryDate,"<"&TODAY())` per location (F-10, D-018 semantics)
 - Inventory by category/location: COUNTIFS joins via helper columns
 
 ---
@@ -316,7 +335,7 @@ The Receiving sheet is the foundation (Req §17) with exact staging cells:
 
 ## 12. Dashboard and reporting
 
-One-row `tblDashboard` KPI row plus a series of COUNTIFS-driven stat blocks (totals, low/out-of-stock table, expiry band table, recent activity, category/location breakdown, frequently-used top-5). Every number traces to a Table via COUNTIFS — the reconciliation test (C-004) proves Dashboard == source.
+One-row `tblDashboard` KPI row plus a series of COUNTIFS-driven stat blocks (totals, low/out-of-stock table, expiry band table, recent activity, category/location breakdown, frequently-used products, inventory by storage location). Every number traces to a Table via COUNTIFS — the reconciliation test (C-004) proves Dashboard == source.
 
 ---
 

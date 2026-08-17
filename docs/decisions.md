@@ -152,11 +152,11 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 ### D-013 — Deployment: single-writer master `.xlsm` on a network share (Option A), read-only copy later
 
 - **Date:** 2026-08-17
-- **Status:** Accepted
-- **Context:** Req §20 and default assumption 4/5: one authoritative editor, multiple readers.
-- **Decision:** Option A primary: one master workbook on a private network share, written only by the dedicated laboratory PC. Publish a read-only copy (Option B pattern) after v1.0.0 stabilizes. Option C (SharePoint/OneDrive) and Option D (Drive sync) are rejected for the writer path and documented with trade-offs.
+- **Status:** Proposed (was Accepted; reconciled 2026-08-17 per architecture review — the owner-decision report lists deployment as an unresolved owner decision, so it cannot be marked Accepted)
+- **Context:** Req §20 and default assumption 4/5: one authoritative editor, multiple readers. The architecture review requires that deployment not be marked Accepted while the owner-decision report says it remains unresolved.
+- **Decision:** Option A primary: one master workbook on a private network share, written only by the dedicated laboratory PC. Publish a read-only copy (Option B pattern) after v1.0.0 stabilizes. Option C (SharePoint/OneDrive) and Option D (Drive sync) are rejected for the writer path and documented with trade-offs. **Requires owner confirmation before the contract freeze.**
 - **Alternatives considered:** A, B, C, D (full comparison in `docs/architecture.md` §14).
-- **Consequences:** File locking and backup rules defined; read-only reporting artifact deferred.
+- **Consequences:** File locking and backup rules defined; read-only reporting artifact deferred; **pending owner approval**.
 - **Files/components affected:** Deployment docs, `docs/architecture.md`.
 - **Supersedes:** None
 
@@ -180,4 +180,48 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 - **Alternatives considered:** No protection; strong passwords (lock users out).
 - **Consequences:** Accidental edits blocked; intentional edits require unprotecting; documented in delivery docs.
 - **Files/components affected:** All sheets; protection contract.
+- **Supersedes:** None
+
+### D-016 — Remove `Reserved` from the v1 status set
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** Architecture review: the model had a `Reserved` status but no Reserve/ReleaseReservation transaction, so it could only practically be entered through `Adjustment`.
+- **Decision:** Use the smallest practical v1 status set: `Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing`. `Reserved` is removed everywhere (list table, transitions, fixtures, contract, docs, scan text). No reservation workflow is invented; if a concrete reservation requirement later appears, stop and propose it.
+- **Alternatives considered:** Keep `Reserved`; invent Reserve/ReleaseReservation transactions.
+- **Consequences:** 6 statuses; simpler transition matrix and validation; reservation explicitly deferred.
+- **Files/components affected:** `tblStatusList`, transition matrix, contract YAML, fixtures, tests, dashboard/scan text, docs.
+- **Supersedes:** None (modifies D-005's status set)
+
+### D-017 — Helper/calculated columns are first-class contract members but non-authoritative
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** Architecture review: the workbook contains `tblProducts[HelperAvailableStock]`, `tblProducts[HelperStockClass]`, `tblContainers[HelperContainerNum]`, `tblContainers[HelperBarcodeNum]` which the contract did not document — workbook/contract drift.
+- **Decision:** Keep these protected formula/helper columns (they are useful and 2021-compatible). Document them explicitly in the contract and architecture, mark them `calculated: true` / `authoritative: false` / protected, and make the structural test compare the exact workbook columns to the exact contract columns (zero drift).
+- **Alternatives considered:** Removing the helper columns; leaving the drift.
+- **Consequences:** Contract and workbook now reconcile exactly; helpers are protected and never manually edited; tests enforce parity.
+- **Files/components affected:** `schema/workbook-contract.yaml`, `docs/architecture.md`, `scripts/inspect_workbook.py`.
+- **Supersedes:** None
+
+### D-018 — Usable available stock excludes expired-by-date containers without mutating Status
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** Architecture review: available-stock logic counted `Status="Available"` only, so an expired-by-date container could remain part of usable stock until a `MarkExpired` transaction was recorded.
+- **Decision:** Authoritative available-stock definition: `Status="Available" AND (ExpiryDate blank OR ExpiryDate >= TODAY())`. Implemented as `COUNTIFS(Status,"Available") - COUNTIFS(Status,"Available", ExpiryDate,"<"&TODAY())` (subtraction because COUNTIFS cannot express the OR in one pair). The stored `Status` is **never** silently mutated by the clock; status remains event-controlled and auditable. Expired-by-date containers are excluded from stock/reorder, shown as expired in Scan validation, blocked from TakeOpen, and guided toward `MarkExpired`.
+- **Alternatives considered:** Auto-mutating Status to `Expired` on a timer (violates event-controlled status); leaving the gap.
+- **Consequences:** Stock/reorder/dashboard reflect the clock; Status integrity preserved; boundary test added.
+- **Files/components affected:** Stock formula (Products helper, Dashboard), Scan validation, contract F-01, tests.
+- **Supersedes:** None (refines D-006)
+
+### D-019 — Dashboard operational views completed
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** Architecture review: the Dashboard was missing "most frequently used products" and "inventory by storage location".
+- **Decision:** Add both views using Excel 2021/2024-compatible formulas: frequently-used per product via `COUNTIFS(tblTransactions[ProductID], <pid>, tblTransactions[TransactionType], "TakeOpen")`; inventory by storage location via the D-018 usable-available formula grouped by `StorageLocationID`. Both use deterministic fixtures and independent tests.
+- **Alternatives considered:** `SORT`/`FILTER` (365-only, rejected for compatibility).
+- **Consequences:** Dashboard now covers Req §18 views; tests reconcile each view to source Tables.
+- **Files/components affected:** Dashboard builder, contract F-09/F-10, tests.
 - **Supersedes:** None

@@ -53,7 +53,7 @@ All 18 defaults are applied; none were contradicted by `docs/requirements.md`. S
 One physical container/package = one inventory unit. Remaining mL/g/pieces are not tracked (invariant 6). Empty cannot be inferred; it requires a recorded `Dispose`/`Adjustment` event (Req §11). Stock is derived exclusively by counting Containers in qualifying available states (invariant 5).
 
 ### 3.2 Status model (Req §11)
-Statuses chosen: `Available`, `InUse`, `Reserved`, `Expired`, `Damaged`, `Disposed`, `Missing` (7 values, no redundancy). `OpenedDate` is an independent flag: a returned opened container can be `Available` again while retaining opened history (default assumption 12, decision D-005). This cleanly separates "physically in storage" from "previously opened" without extra states.
+Statuses chosen: `Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing` (6 values, smallest practical v1 set — decision D-016). `Reserved` was removed because no complete reservation workflow exists in v1 and a state only practically enterable through `Adjustment` must not be retained. `OpenedDate` is an independent flag: a returned opened container can be `Available` again while retaining opened history (default assumption 12, decision D-005). This cleanly separates "physically in storage" from "previously opened" without extra states. Available-stock semantics (D-018): `Status="Available" AND (ExpiryDate blank OR ExpiryDate >= TODAY())` — an expired-by-date container is excluded from usable stock without silently mutating its stored Status.
 
 ### 3.3 Transaction model (Req §9, §10)
 Types: `Receive`, `TakeOpen`, `Return`, `Transfer`, `Dispose`, `MarkExpired`, `MarkDamaged`, `MarkMissing`, `Adjustment` (9 values). Every transaction snapshots barcode, ContainerID, ProductID, ProductName, batch/lot, previous/new status, previous/new location, timestamp, and optional reason/reference/notes — satisfying "a barcode search must reconstruct the complete container history" (Req §6). Corrections are compensating `Adjustment` transactions (append-only; invariant 7).
@@ -79,7 +79,7 @@ The Scan sheet is fully formula-driven for **lookup and validation display**: sc
 The Receiving sheet is an **interface foundation**: product picker, auto-generated next IDs, barcode/lot/expiry/location entry block, batch-size field, and step-by-step instructions. Non-VBA mode requires manual append of Container + `Receive` transaction rows; VBA later performs the atomic append. This is explicitly an interim manual workflow, not hidden automation.
 
 ### 3.9 Deployment (Req §20)
-Recommendation: **Option A — one master `.xlsm` on a network share with a single writer PC** (default), with a published read-only copy (Option B) for other PCs once the workbook is stable. Full trade-off analysis in `docs/architecture.md` §14. Decision D-013.
+Recommendation: **Option A — one master `.xlsm` on a network share with a single writer PC** (default), with a published read-only copy (Option B) for other PCs once the workbook is stable. Full trade-off analysis in `docs/architecture.md` §14. Decision D-013 is **Proposed** (not Accepted): it is listed in the owner-decision report as an unresolved decision requiring owner confirmation before the contract freeze.
 
 ## 4. Ambiguities resolved (with default-based resolution)
 
@@ -108,7 +108,7 @@ Recommendation: **Option A — one master `.xlsm` on a network share with a sing
 1. **Deployment primary**: confirm Option A (single master `.xlsm` on network share) versus SharePoint/OneDrive (Option C), given the "one writer" constraint. Default assumes A.
 2. **Label printing**: is internal label generation/printing (Code 128) in scope for v1, or only barcode assignment rules? Default: rules + symbology recommendation only.
 3. **Operator capture**: capture Windows username at transaction time in VBA phase? Default: yes, in the reserved `Operator` column.
-4. **Status set**: approve the 7-value status model (in particular that `Opened` is a flag, not a status) before freezing.
+4. **Status set**: approve the 6-value status model (`Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing`; `Opened` is a flag; `Reserved` removed) before freezing.
 5. **Receiving batch efficiency**: is a "receive N identical containers" multi-row helper desired in v1 (VBA phase), or is one-by-one acceptable? Default: batch helper planned.
 6. **Retest dates**: keep `RetestDate` as an optional advisory column only (no retest workflow in v1)? Default: yes.
 

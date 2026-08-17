@@ -8,6 +8,15 @@ installed). **No test on this machine is a desktop-Excel test** — see
 boundary. Desktop Excel open/recalc/visual verification is a defined
 owner-side step before the contract freeze.
 
+## Revision note (architecture review corrections, 2026-08-17)
+
+This revision applies the four pre-freeze corrections:
+1. Contract/workbook zero-drift (helper columns documented as calculated/non-authoritative; inspector compares workbook columns to contract YAML exactly).
+2. D-018 usable-available stock: `Status="Available" AND (ExpiryDate blank OR ExpiryDate >= TODAY())`; expired-by-date containers excluded from stock without mutating Status; Scan blocks TakeOpen.
+3. D-016 status set reduced to 6 (`Available`, `InUse`, `Expired`, `Damaged`, `Disposed`, `Missing`); `Reserved` removed.
+4. D-019 dashboard views completed: most frequently used products and inventory by storage location.
+5. D-013 deployment reconciled to Proposed (owner decision pending).
+
 ## Inventory exports (from `scripts/inspect_workbook.py`)
 
 - `workbook-inventory.txt` — sheets, Tables + columns, named ranges, sampled formulas, validation rules, conditional formatting, protection.
@@ -17,8 +26,8 @@ owner-side step before the contract freeze.
 
 ## Test results
 
-- `non-vba-structural-report.txt` — structural inspection (44 checks, all PASS).
-- `non-vba-formula-results.txt` — independent Excel-formula evaluation via the `formulas` library (37 checks, all PASS).
+- `non-vba-structural-report.txt` — structural inspection incl. workbook-vs-contract-YAML parity (49 checks, all PASS).
+- `non-vba-formula-results.txt` — independent Excel-formula evaluation via the `formulas` library (55 checks, all PASS), incl. D-018 boundary tests and new dashboard views.
 
 ## Screenshots (from `scripts/render_screenshots.py`)
 
@@ -37,8 +46,8 @@ screenshots**; they prove layout/cell content, not Excel rendering.
 
 ```
 workbook/LabInventory_v0.1.xlsx
-SHA-256: C48F649F98F3FF1A9BF4574177705C09C0C0A75FE54D1038435E1A44C7DDE80A
-Size:    278210 bytes
+SHA-256: 6DE5B84AE81A04F0886BD96FC35EB316AEA4218C4AA386C3065CF3E322D82470
+Size:    278887 bytes
 ```
 
 Regenerate with:

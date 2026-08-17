@@ -1,7 +1,7 @@
 # Container status and transaction transition matrix
 
 **Status:** DRAFT — v0.1 (not frozen)
-**Date:** 2026-08-17
+**Date:** 2026-08-17 (rev. 2026-08-17 — D-016 status set, D-018 expiry semantics)
 **Contract reference:** `schema/workbook-contract.yaml`
 
 This document is the authoritative state model for `LabInventory_v0.1.xlsx`. Every transition is classified:
@@ -11,13 +11,16 @@ This document is the authoritative state model for `LabInventory_v0.1.xlsx`. Eve
 - **BLOCK** — reject without mutation;
 - **N/A** — transaction does not apply to this status.
 
-## Status definitions
+## Status definitions (D-016 — smallest practical v1 set)
 
-| Status | Meaning | In storage? | Qualifies as available stock? | Can be returned? | Notes |
+`Reserved` was removed: no complete Reserve/ReleaseReservation workflow exists in
+v1, and a state only practically enterable through `Adjustment` must not be
+retained (decision D-016).
+
+| Status | Meaning | In storage? | Qualifies as usable available stock? | Can be returned? | Notes |
 |---|---|---|---|---|---|
-| `Available` | Physically in a storage location, not opened, usable | Yes | **Yes** | N/A (already available) | The only stock-qualifying status |
+| `Available` | Physically in a storage location, not opened, usable | Yes | **Yes**, unless expired by date (D-018) | N/A (already available) | The only stock-qualifying status; still excluded if `ExpiryDate < TODAY()` |
 | `InUse` | Taken/opened out of storage, in active use | No | No | Yes (via `Return`) | Remains traceable; `OpenedDate` set |
-| `Reserved` | Held for a specific purpose, still physical | Yes | No | — | Reserved does not consume stock |
 | `Expired` | Past expiry, unusable | Yes/No | No | No | Requires `Dispose` to leave inventory |
 | `Damaged` | Physically unusable | Yes/No | No | No | Requires `Dispose` |
 | `Disposed` | Removed from inventory (used up, expired, damaged, etc.) | No | No | No | Terminal; `DisposalDate`/`DisposalReason` set |
@@ -25,13 +28,20 @@ This document is the authoritative state model for `LabInventory_v0.1.xlsx`. Eve
 
 **Flag semantics:** `OpenedDate` on a Container is independent of status. An `Available` container with `OpenedDate` set is a returned, previously opened container (default assumption 12; decision D-005). This is why `Opened/In Use` is **not** a status.
 
+**Expired-by-date semantics (D-018):** a container with `Status=Available` but
+`ExpiryDate < TODAY()` is **immediately excluded** from usable available stock
+and reorder calculations. Its stored `Status` is **not** silently changed by the
+clock — status remains event-controlled and auditable. The Scan interface shows
+it as expired and blocks TakeOpen, guiding the operator to record `MarkExpired`
+or `Dispose`.
+
 ## Transaction definitions
 
 | Transaction | Effect on Container | Required fields | Warning/confirm | Stock effect |
 |---|---|---|---|---|
 | `Receive` | Creates container; Status → `Available` (default `DefaultStatusNewContainers`); sets DateReceived; sets location | Barcode, ProductID, lot, location; expiry optional | CONFIRM if barcode already exists (blocked); info otherwise | +1 |
-| `TakeOpen` | Status → `InUse`; sets `OpenedDate` (if unset); clears location | None beyond scan | CONFIRM if already opened or if expiry soon | −1 (leaves Available) |
-| `Return` | Status → `Available`; sets location; keeps `OpenedDate` | Location | CONFIRM if expired/damaged/missing (should be blocked in VBA) | +1 |
+| `TakeOpen` | Status → `InUse`; sets `OpenedDate` (if unset); clears location | None beyond scan | CONFIRM if already opened or expiry soon; **BLOCK if expired by date (D-018)** | −1 (leaves Available) |
+| `Return` | Status → `Available`; sets location; keeps `OpenedDate` | Location | CONFIRM if expiry soon; BLOCK if terminal status | +1 |
 | `Transfer` | Location changes; status unchanged | New location | ALLOW | 0 |
 | `Dispose` | Status → `Disposed`; sets DisposalDate + DisposalReason; clears location | DisposalReason | **CONFIRM** (destructive, irreversible) | −1 if was Available |
 | `MarkExpired` | Status → `Expired` | None | CONFIRM (auto-set on scan of expired in VBA) | −1 if was Available |
@@ -44,15 +54,20 @@ This document is the authoritative state model for `LabInventory_v0.1.xlsx`. Eve
 | Current status | Receive | Take/Open | Return | Transfer | Dispose | Mark Expired | Mark Damaged | Mark Missing | Adjustment/Reversal |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | (none — new) | **ALLOW** | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
-| `Available` | BLOCK | **ALLOW** | N/A | **ALLOW** | **CONFIRM** | **CONFIRM** | **CONFIRM** | **CONFIRM** | CONFIRM |
+| `Available` (valid date) | BLOCK | **ALLOW** | N/A | **ALLOW** | **CONFIRM** | **CONFIRM** | **CONFIRM** | **CONFIRM** | CONFIRM |
+| `Available` (expired by date) | BLOCK | **BLOCK (D-018)** | N/A | ALLOW (relocation) | **ALLOW** | **ALLOW (recommended)** | CONFIRM | CONFIRM | CONFIRM |
 | `InUse` | BLOCK | BLOCK (already opened) | **ALLOW** | BLOCK (not in storage) | CONFIRM | CONFIRM | CONFIRM | CONFIRM | CONFIRM |
-| `Reserved` | BLOCK | CONFIRM (release + take) | ALLOW | ALLOW | CONFIRM | CONFIRM | CONFIRM | CONFIRM | CONFIRM |
 | `Expired` | BLOCK | BLOCK (invariant 9) | BLOCK | ALLOW (relocation) | **ALLOW** | N/A (already) | BLOCK (expired) | BLOCK | CONFIRM |
 | `Damaged` | BLOCK | BLOCK | BLOCK | ALLOW | **ALLOW** | BLOCK | N/A (already) | BLOCK | CONFIRM |
 | `Disposed` | BLOCK | BLOCK | BLOCK | BLOCK | BLOCK (already) | BLOCK | BLOCK | BLOCK | CONFIRM (reopen/restore) |
 | `Missing` | BLOCK | BLOCK | BLOCK | BLOCK | CONFIRM (resolve as disposed) | BLOCK | BLOCK | N/A (already) | CONFIRM (found → Available) |
 
-**Invariant enforcement:** expired/damaged/disposed/missing containers cannot be taken through a normal available-stock transaction (invariant 9). The `Adjustment` row is the only path to reverse a terminal state, and it always requires explicit confirmation and a reason.
+**Invariant enforcement:** expired/damaged/disposed/missing containers cannot be
+taken through a normal available-stock transaction (invariant 9). The `Adjustment`
+row is the only path to reverse a terminal state, and it always requires explicit
+confirmation and a reason. Additionally, an `Available` container that is expired
+**by date** (even though `MarkExpired` has not been recorded) cannot be taken
+(D-018).
 
 ## Side effects
 
@@ -62,14 +77,14 @@ This document is the authoritative state model for `LabInventory_v0.1.xlsx`. Eve
 - Dates: `DateReceived` = today; `OpenedDate`/`DisposalDate` blank.
 - Required: barcode unique, product, lot, location.
 - Snapshot: full product/batch/status/location snapshot; `PreviousStatus=(none)`, `PreviousLocation=(none)`.
-- Stock effect: +1 available.
+- Stock effect: +1 available (unless expired by date at receive time — not a normal case).
 - Reversal: `Adjustment` (mark disposed) or `Dispose`.
 
 ### TakeOpen
 - Resulting status: `InUse`.
 - Location: cleared (not in storage).
 - Dates: `OpenedDate` set if blank.
-- Warning: CONFIRM if `OpenedDate` already set (re-take) or expiry soon.
+- Warning: CONFIRM if `OpenedDate` already set (re-take) or expiry soon; **BLOCK if `ExpiryDate < TODAY()` (D-018)** — the operator must `MarkExpired` or `Dispose` instead.
 - Snapshot: previous `Available`, new `InUse`, location cleared.
 - Stock effect: −1 available.
 - Reversal: `Return`.

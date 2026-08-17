@@ -154,7 +154,6 @@ def _build_settings(wb):
     status_labels = {
         "Available": "In storage, usable",
         "InUse": "Taken/opened, out of storage",
-        "Reserved": "Held for specific purpose",
         "Expired": "Past expiry, unusable",
         "Damaged": "Physically unusable",
         "Disposed": "Removed from inventory",
@@ -299,8 +298,15 @@ def _build_products(wb):
     for k in range(n):
         r = hdr + 1 + k
         pid = ws.cell(row=r, column=1).value
-        # AvailableStock
-        ws.cell(row=r, column=20, value=f'=COUNTIFS(tblContainers[ProductID],A{r},tblContainers[Status],"Available")')
+        # AvailableStock (D-018): Status=Available AND (ExpiryDate blank OR
+        # ExpiryDate >= TODAY()). Implemented as: available minus
+        # available-but-expired-by-date (COUNTIFS cannot express OR directly;
+        # subtraction is 2021-compatible and auditable).
+        ws.cell(row=r, column=20, value=(
+            f'=COUNTIFS(tblContainers[ProductID],A{r},tblContainers[Status],"Available")'
+            f'-COUNTIFS(tblContainers[ProductID],A{r},tblContainers[Status],"Available",'
+            f'tblContainers[ExpiryDate],"<"&TODAY())'
+        ))
         # StockClass
         ws.cell(row=r, column=21, value=f'=IF(T{r}=0,"OutOfStock",IF(T{r}<O{r},"Reorder",IF(T{r}<P{r},"Low","OK")))')
     # header for helper columns
@@ -346,12 +352,18 @@ def _build_containers(wb):
         ("C000016", "0000016", "P000006", "LOT0050", None, None, "2026-04-01", "LOC0004", "Available", None, None, None, "Gloves box 2"),
         ("C000017", "0000017", "P000006", "LOT0051", None, None, "2026-07-10", "LOC0004", "Disposed", None, "2026-07-11", "Used Up", "Gloves box 3 disposed"),
         ("C000018", "0000018", "P000003", "LOT0022", "2027-06-30", None, "2026-08-10", "LOC0001", "Available", None, None, None, "Ethanol bottle D"),
-        ("C000019", "0000019", "P000002", "LOT0012", None, None, "2026-08-12", "LOC0004", "Reserved", None, None, None, "Tubes box 4 reserved"),
+        ("C000019", "0000019", "P000002", "LOT0012", None, None, "2026-08-12", "LOC0004", "Available", None, None, None, "Tubes box 4 (Available, no expiry)"),
         ("C000020", "0000020", "P000001", "LOT0003", None, None, "2026-08-15", "LOC0004", "Missing", None, None, "Missing", "Tips box 4 missing"),
+        ("C000021", "0000021", "P000005", "LOT0043", "2026-08-10", None, "2026-07-15", "LOC0003", "Available", None, None, None, "Tris reagent expired-by-date but NOT yet MarkExpired (D-018 boundary)"),
     ]
     for i, row in enumerate(rows, start=hdr + 1):
         for j, v in enumerate(row, start=1):
-            ws.cell(row=i, column=j, value=v)
+            if j in (5, 6, 7, 10, 11) and isinstance(v, str) and v:
+                # store REAL dates (openpyxl keeps strings as text otherwise,
+                # which would break date comparisons in Excel)
+                from datetime import date as _date
+                v = _date.fromisoformat(v)
+            cell = ws.cell(row=i, column=j, value=v)
             if j == 2:  # barcode text
                 ws.cell(row=i, column=j).number_format = NUM_FMT_TEXT
             if j in (5, 6, 7, 10, 11):  # dates
@@ -419,7 +431,7 @@ def _build_transactions(wb):
         ("T00000026", "2026-08-10 10:10", "LAB-USER", "0000018", "C000018", "P000003", P["P000003"], "Receive", "(none)", "Available", "(none)", "LOC0001", "LOT0022", None, "PO-1013", "Ethanol D received"),
         ("T00000027", "2026-08-12 11:00", "LAB-USER", "0000019", "C000019", "P000002", P["P000002"], "Receive", "(none)", "Available", "(none)", "LOC0004", "LOT0012", None, "PO-1014", "Tubes box 4 received"),
         ("T00000028", "2026-08-13 13:45", "LAB-USER", "0000019", "C000019", "P000002", P["P000002"], "Transfer", "Available", "Available", "LOC0004", "LOC0005", "LOT0012", None, None, "Tubes box 4 transferred"),
-        ("T00000029", "2026-08-14 09:00", "LAB-USER", "0000019", "C000019", "P000002", P["P000002"], "Adjustment", "Available", "Reserved", "LOC0005", "LOC0005", "LOT0012", "Correction", None, "Tubes box 4 reserved"),
+        ("T00000029", "2026-07-15 09:00", "LAB-USER", "0000021", "C000021", "P000005", P["P000005"], "Receive", "(none)", "Available", "(none)", "LOC0003", "LOT0043", None, "PO-1016", "Tris reagent received (expires 2026-08-10; not yet MarkExpired)"),
         ("T00000030", "2026-08-15 14:00", "LAB-USER", "0000020", "C000020", "P000001", P["P000001"], "Receive", "(none)", "Available", "(none)", "LOC0004", "LOT0003", None, "PO-1015", "Tips box 4 received"),
         ("T00000031", "2026-08-16 10:00", "LAB-USER", "0000020", "C000020", "P000001", P["P000001"], "MarkMissing", "Available", "Missing", "LOC0004", "(none)", "LOT0003", "Missing", None, "Tips box 4 missing"),
     ]
@@ -507,10 +519,10 @@ def _build_scan(wb):
     # validation panel
     ws.cell(row=27, column=4, value="Validation & allowed next actions").font = SECTION_FONT
     ws.cell(row=28, column=4, value="Allowed next actions").font = BODY_FONT
-    ws.cell(row=28, column=5, value='=IF($D13="","",IF($L13="Available","TakeOpen | Transfer | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)",IF($L13="InUse","Return | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)",IF($L13="Reserved","Return | Transfer | TakeOpen (confirm) | Dispose (confirm)",IF($L13="Expired","Dispose | Transfer (relocation only)",IF($L13="Damaged","Dispose | Transfer (relocation only)",IF($L13="Disposed","None — terminal (Adjustment only)","Dispose (resolve) | Adjustment (found)")))))))')
+    ws.cell(row=28, column=5, value='=IF($D13="","",IF(AND($L13="Available",$I13<>"",$I13<TODAY()),"TakeOpen BLOCKED (expired by date) | Dispose | MarkExpired",IF($L13="Available","TakeOpen | Transfer | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)",IF($L13="InUse","Return | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)",IF($L13="Expired","Dispose | Transfer (relocation only)",IF($L13="Damaged","Dispose | Transfer (relocation only)",IF($L13="Disposed","None — terminal (Adjustment only)","Dispose (resolve) | Adjustment (found)")))))))')
     ws.cell(row=28, column=5).font = Font(size=9)
     ws.cell(row=29, column=4, value="Blocking conditions").font = BODY_FONT
-    ws.cell(row=29, column=5, value='=IF($O13="DUPLICATE","DUPLICATE BARCODE — resolve before action",IF($P13="UNKNOWN","UNKNOWN BARCODE — receive first",IF($P13="EMPTY","Scan a barcode","None")))')
+    ws.cell(row=29, column=5, value='=IF($O13="DUPLICATE","DUPLICATE BARCODE — resolve before action",IF($P13="UNKNOWN","UNKNOWN BARCODE — receive first",IF($P13="EMPTY","Scan a barcode",IF(AND($L13="Available",$I13<>"",$I13<TODAY()),"EXPIRED BY DATE — TakeOpen blocked; record MarkExpired or Dispose","None"))))')
     ws.cell(row=29, column=5).font = Font(size=9, color="B71C1C")
     _box_region(ws, 28, 4, 29, 5)
 
@@ -594,7 +606,8 @@ def _build_dashboard(wb):
     ws.cell(row=4, column=2, value="Key statistics").font = SECTION_FONT
     stats = [
         ("Total active products", '=COUNTIF(tblProducts[Active],TRUE)'),
-        ("Total available containers", '=COUNTIF(tblContainers[Status],"Available")'),
+        # D-018: total available = Status=Available AND (no expiry OR expiry>=TODAY)
+        ("Total available containers (usable)", '=COUNTIF(tblContainers[Status],"Available")-COUNTIFS(tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())'),
         ("Containers in use", '=COUNTIF(tblContainers[Status],"InUse")'),
         ("Expired containers (any status)", '=COUNTIF(tblContainers[ExpiryDate],"<"&TODAY())'),
         ("Available expiring ≤30 days", '=COUNTIFS(tblContainers[Status],"Available",tblContainers[ExpiryDate],">="&TODAY(),tblContainers[ExpiryDate],"<="&TODAY()+ExpiryWarningDays30)'),
@@ -663,7 +676,42 @@ def _build_dashboard(wb):
         ws.cell(row=r, column=2).border = BOX
         ws.cell(row=r, column=3).border = BOX
 
-    ws.cell(row=42, column=2, value="Compliance boundary: operational inventory control only — not an SDS, EHS, GMP/GLP, or validated LIMS system.").font = SMALL_FONT
+    # frequently used products (Req §18): count TakeOpen transactions per
+    # product, list in deterministic product order (2021-compatible INDEX).
+    ws.cell(row=41, column=2, value="Most frequently used products (TakeOpen count)").font = SECTION_FONT
+    ws.cell(row=42, column=2, value="Product").font = HDR_FONT
+    ws.cell(row=42, column=3, value="TakeOpen count").font = HDR_FONT
+    _style_header(ws, 42, 2, start_col=2)
+    for i in range(6):
+        r = 43 + i
+        pr = i + 1  # product row offset (products start row 5)
+        ws.cell(row=r, column=2, value=f'=IF(INDEX(tblProducts[ProductID],{pr})="","",INDEX(tblProducts[ProductName],{pr}))')
+        ws.cell(row=r, column=3, value=f'=IF(INDEX(tblProducts[ProductID],{pr})="","",COUNTIFS(tblTransactions[ProductID],INDEX(tblProducts[ProductID],{pr}),tblTransactions[TransactionType],"TakeOpen"))')
+        ws.cell(row=r, column=3).alignment = CENTER
+        ws.cell(row=r, column=2).border = BOX
+        ws.cell(row=r, column=3).border = BOX
+
+    # inventory by storage location (Req §18): count usable available
+    # containers per location (D-018 semantics: exclude expired-by-date).
+    ws.cell(row=50, column=2, value="Inventory by storage location (usable available)").font = SECTION_FONT
+    ws.cell(row=51, column=2, value="Location").font = HDR_FONT
+    ws.cell(row=51, column=3, value="Available").font = HDR_FONT
+    _style_header(ws, 51, 2, start_col=2)
+    n_locs = 6
+    for i in range(n_locs):
+        r = 52 + i
+        lr = i + 1  # locations start row 5
+        ws.cell(row=r, column=2, value=f'=IF(INDEX(tblLocations[StorageLocationID],{lr})="","",INDEX(tblLocations[LocationName],{lr}))')
+        ws.cell(row=r, column=3, value=(
+            f'=IF(INDEX(tblLocations[StorageLocationID],{lr})="","",'
+            f'COUNTIFS(tblContainers[StorageLocationID],INDEX(tblLocations[StorageLocationID],{lr}),tblContainers[Status],"Available")'
+            f'-COUNTIFS(tblContainers[StorageLocationID],INDEX(tblLocations[StorageLocationID],{lr}),tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY()))'
+        ))
+        ws.cell(row=r, column=3).alignment = CENTER
+        ws.cell(row=r, column=2).border = BOX
+        ws.cell(row=r, column=3).border = BOX
+
+    ws.cell(row=60, column=2, value="Compliance boundary: operational inventory control only — not an SDS, EHS, GMP/GLP, or validated LIMS system.").font = SMALL_FONT
 
 
 # ------------------------------------------------------------------ table/name/validation/CF/protection application

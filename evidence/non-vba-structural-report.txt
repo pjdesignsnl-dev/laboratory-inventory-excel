@@ -14,10 +14,12 @@ Overall: PASS
 [PASS] tblExpiryClassList headers match contract (2 cols)
 [PASS] tblScanResults headers match contract (13 cols)
 [PASS] tblReceiveStaging headers match contract (12 cols)
+[PASS] workbook vs contract YAML zero drift (issues: none)
+[PASS] helper/calculated columns documented as non-authoritative in contract (issues: none)
 [PASS] all contract named ranges present (missing: none)
 [PASS] tblProducts: ProductID unique (n=6)
 [PASS] tblProducts: ProductID nonblank in all fixture rows
-[PASS] tblContainers: ContainerID unique (n=20)
+[PASS] tblContainers: ContainerID unique (n=21)
 [PASS] tblContainers: ContainerID nonblank in all fixture rows
 [PASS] tblTransactions: TransactionID unique (n=31)
 [PASS] tblTransactions: TransactionID nonblank in all fixture rows
@@ -38,6 +40,10 @@ Overall: PASS
 [PASS] ProductType values valid (bad: none)
 [PASS] Category values valid (bad: none)
 [PASS] ExpiryDate >= DateReceived where both set (bad: none)
+[PASS] date cells are real dates (bad: none)
+[PASS] No Reserved in status list/fixtures (hits: none) (D-016)
+[PASS] Dashboard has 'most frequently used products' section (D-019)
+[PASS] Dashboard has 'inventory by storage location' section (D-019)
 [PASS] Products HelperAvailableStock formula
 [PASS] Products HelperStockClass formula
 [PASS] Dashboard has formula stats

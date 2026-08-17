@@ -6,11 +6,11 @@ This document becomes the human-readable binding contract between the workbook a
 
 ## Workbook identity
 
-- Product name: TBD
-- Workbook version: TBD
-- Contract version: TBD
-- Target Excel versions: TBD
-- Architecture approval reference: TBD
+- Product name: Laboratory Inventory for Excel
+- Workbook version: v0.1
+- Contract version: 0.2.0 (draft)
+- Target Excel versions: Microsoft 365 desktop, Excel 2021/2024 desktop
+- Architecture approval reference: `docs/architecture.md` (DRAFT); `docs/decisions.md` D-001…D-019
 
 ## Worksheets
 

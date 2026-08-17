@@ -97,6 +97,55 @@ def main():
         expected = [c[1] for c in spec["columns"]]
         chk(headers == expected, f"{tname} headers match contract ({len(expected)} cols)")
 
+    # ---------------- contract YAML vs workbook reconciliation (Correction 1)
+    # Zero workbook-contract drift: the YAML contract columns must equal the
+    # workbook's actual table columns exactly (names, order, count).
+    try:
+        import yaml as _yaml
+        contract_path = os.path.join(root, "schema", "workbook-contract.yaml")
+        with open(contract_path, encoding="utf-8") as f:
+            contract = _yaml.safe_load(f)
+        yaml_tables = {t["name"]: t for t in contract.get("tables", [])}
+        drift = []
+        for tname, spec in TABLES.items():
+            ws = wb[spec["sheet"]]
+            if tname not in ws.tables:
+                continue
+            tab = ws.tables[tname]
+            c1, r1, c2, r2 = range_boundaries(tab.ref)
+            start_col = spec.get("start_col", 1)
+            wb_cols = [ws.cell(row=r1, column=start_col + i).value for i in range(len(spec["columns"]))]
+            # match by schema column name -> contract column name
+            yt = yaml_tables.get(tname)
+            if yt is None:
+                drift.append(f"{tname}: missing from contract YAML")
+                continue
+            yaml_cols = [c["name"] for c in yt.get("columns", [])]
+            schema_names = [c[0] for c in spec["columns"]]
+            if schema_names != yaml_cols:
+                drift.append(
+                    f"{tname}: schema names {schema_names} != contract YAML names {yaml_cols}"
+                )
+        chk(not drift, f"workbook vs contract YAML zero drift (issues: {drift or 'none'})")
+        # also verify helper columns are documented as calculated in the contract
+        helper_issues = []
+        for tname, spec in TABLES.items():
+            calc = spec.get("calculated_columns", [])
+            yt = yaml_tables.get(tname)
+            if yt is None:
+                continue
+            yaml_by_name = {c["name"]: c for c in yt.get("columns", [])}
+            for cn in calc:
+                cdef = yaml_by_name.get(cn)
+                if cdef is None:
+                    helper_issues.append(f"{tname}.{cn}: missing from contract")
+                elif not (cdef.get("calculated") or cdef.get("authoritative") is False):
+                    helper_issues.append(f"{tname}.{cn}: not marked calculated/non-authoritative in contract")
+        chk(not helper_issues,
+            f"helper/calculated columns documented as non-authoritative in contract (issues: {helper_issues or 'none'})")
+    except Exception as _e:  # pragma: no cover
+        chk(False, f"contract YAML reconciliation could not run: {_e}")
+
     # ---------------- named ranges
     defined = set(wb.defined_names.keys())
     expected_names = set(NAMED_RANGES) | set(LIST_RANGES) | set(SETTINGS_NAMES) | set(COLUMN_NAMES)
@@ -187,6 +236,41 @@ def main():
                  if r.get("ExpiryDate") and r.get("DateReceived")
                  and r["ExpiryDate"] < r["DateReceived"]]
     chk(not bad_dates, f"ExpiryDate >= DateReceived where both set (bad: {bad_dates or 'none'})")
+
+    # date cells must be real dates (not text) so Excel date comparisons work
+    date_cols = ["ExpiryDate", "RetestDate", "DateReceived", "OpenedDate", "DisposalDate"]
+    bad_date_types = []
+    for r in cont_rows:
+        for dc in date_cols:
+            v = r.get(dc)
+            if v is not None and not hasattr(v, "isoformat"):
+                bad_date_types.append((r.get("ContainerID"), dc, type(v).__name__))
+    chk(not bad_date_types,
+        f"date cells are real dates (bad: {bad_date_types or 'none'})")
+
+    # No Reserved anywhere in status list or fixtures (D-016)
+    reserved_hits = []
+    for r in cont_rows:
+        if r.get("Status") == "Reserved":
+            reserved_hits.append(r.get("ContainerID"))
+    # status list table check
+    settings_ws = wb["Settings"]
+    for r in range(1, 60):
+        if settings_ws.cell(row=r, column=1).value == "Reserved":
+            reserved_hits.append("tblStatusList row %d" % r)
+    chk(not reserved_hits, f"No Reserved in status list/fixtures (hits: {reserved_hits or 'none'}) (D-016)")
+
+    # Dashboard must include frequently-used + by-location sections (D-019)
+    dash = wb["Dashboard"]
+    dash_texts = []
+    for r in range(1, dash.max_row + 1):
+        v = dash.cell(row=r, column=2).value
+        if isinstance(v, str):
+            dash_texts.append(v)
+    has_freq = any("frequently used" in t.lower() for t in dash_texts)
+    has_loc = any("storage location" in t.lower() for t in dash_texts)
+    chk(has_freq, "Dashboard has 'most frequently used products' section (D-019)")
+    chk(has_loc, "Dashboard has 'inventory by storage location' section (D-019)")
 
     # formula presence: Products helper columns, Dashboard stats, Scan lookups
     formula_checks = []
