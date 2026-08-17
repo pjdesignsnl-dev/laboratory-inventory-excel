@@ -1,0 +1,21 @@
+opened C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+saved C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v1.0-candidate.xlsm
+imported modConstants.bas
+imported modWorkbookContract.bas
+imported modTestHooks.bas
+saved after import (Excel compiles on save)
+VBComponents count: 13
+  100 ThisWorkbook
+  100 Sheet1
+  100 Sheet2
+  100 Sheet3
+  100 Sheet4
+  100 Sheet5
+  100 Sheet6
+  100 Sheet7
+  100 Sheet8
+  100 Sheet9
+  1 modConstants
+  1 modWorkbookContract
+  1 modTestHooks
+closed

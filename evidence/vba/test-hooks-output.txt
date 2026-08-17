@@ -1,0 +1,3 @@
+contract:OK diag=[]
+drift:before=FAIL after=OK
+drift-diag=[]
