@@ -236,3 +236,21 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 - **Consequences:** Workbook now verifiably opens, recalculates, and reconciles in real Microsoft Excel with zero formula errors and no save/reopen drift; evidence recorded in `evidence/excel-runtime/`.
 - **Files/components affected:** `scripts/build_workbook.py`, `scripts/wb_schema.py`, `scripts/excel_runtime_test.ps1`, `tests/non-vba-results.md`, `evidence/excel-runtime/`.
 - **Supersedes:** D-004 (deferral) — superseded by the executed runtime acceptance.
+
+### D-021 — Application contract frozen for VBA; deployment excluded
+
+- **Date:** 2026-08-17
+- **Status:** Accepted
+- **Context:** The owner authorized the architecture freeze and the start of VBA design/implementation. Per the governance correction, the final storage/deployment option must not be frozen because D-013 remains Proposed.
+- **Decision:** Freeze the application contract:
+  - exact worksheets, Table names, Table columns and order, named ranges, controlled lists, the 6-value status model, transaction types, barcode format (`\d{7}` text), ID formats, stock semantics (D-018), expiry semantics, state-transition matrix, Scan/Receiving interface contract, formula responsibilities (F-01…F-10), and the append-only audit model.
+  - `schema/workbook-contract.yaml`: `status: frozen`, `vba_authorized: true`, `contract_version: 1.0.0`.
+  - Deployment is represented as `deployment_status: proposed`, `writer_model: single_writer`, `reader_model: read_only_elsewhere`, `deployment_option: unresolved` — **not** frozen.
+- **Architecture source commit:** `731b7a13f6287aa843f92ee2dd8cb48f5d8b1111`
+- **Workbook SHA-256:** `C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A`
+- **Excel version used for acceptance:** Microsoft Excel 16.0.20228.20190 (x64)
+- **Test totals at freeze:** Excel runtime acceptance 29/29 PASS; structural 51/51 PASS; formula/business-rule 55/55 PASS.
+- **Alternatives considered:** Freezing deployment as Option A (rejected — D-013 is Proposed and the owner decision is unresolved); delaying the whole freeze (rejected — the application architecture is independent of the deployment option).
+- **Consequences:** VBA may now be designed and implemented against the exact frozen contract. Any change to a frozen member requires the change-control process. The final release manifest must list the unresolved deployment choice until the owner decides.
+- **Files/components affected:** `schema/workbook-contract.yaml`, `docs/workbook-contract.md`, `docs/vba-design.md` (next), VBA sources in `vba/`, workbook `LabInventory_v1.0-candidate.xlsm`.
+- **Supersedes:** The draft status of the contract (prior `status: draft`).

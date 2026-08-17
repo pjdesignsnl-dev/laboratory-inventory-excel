@@ -1,6 +1,15 @@
-contract_version: 0.2.0
-status: draft
-vba_authorized: false
+contract_version: 1.0.0
+status: frozen
+vba_authorized: true
+freeze:
+  authorization: owner-approved architecture freeze (2026-08-17)
+  architecture_source_commit: 731b7a13f6287aa843f92ee2dd8cb48f5d8b1111
+  workbook_sha256: C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A
+  excel_version_acceptance: "16.0.20228.20190 (x64)"
+  excel_runtime_acceptance: "29/29 PASS (evidence/excel-runtime/excel-runtime-results.txt)"
+  supplementary_regression: "structural 51/51 PASS; formula/business-rule 55/55 PASS"
+  deployment_frozen: false
+  deployment_note: "Final storage/deployment option is NOT frozen; D-013 remains Proposed and requires owner decision (see deployment block)."
 product:
   name: Laboratory Inventory for Excel
   version: v0.1
@@ -16,7 +25,20 @@ target_environment:
     - Excel 2024 desktop
   writer_count: 1
   barcode_scanner: USB keyboard wedge (Enter suffix)
-  deployment: single-writer master on network share; read-only copy later
+
+# Deployment is deliberately UNRESOLVED in the frozen contract (D-013 Proposed).
+# The application architecture is frozen independently of the final
+# storage/deployment option; the owner must decide before final release.
+deployment_status: proposed
+writer_model: single_writer
+reader_model: read_only_elsewhere
+deployment_option: unresolved
+deployment_notes:
+  - "Option A: single-writer master .xlsm on a private network share + read-only copies (proposed default, D-013)."
+  - "Option B: master + separate read-only reporting workbook."
+  - "Option C: Microsoft 365/SharePoint/OneDrive (rejected for the writer path; possible read-only publishing later)."
+  - "Option D: Google Drive Office-file sync (rejected)."
+  - "Full trade-off analysis in docs/architecture.md section 14."
 
 worksheets:
   - name: Dashboard
@@ -326,7 +348,9 @@ barcode_rules:
   - label_source: internal generated labels required; supplier codes cannot identify identical containers
 
 notes:
-  - Contract status is draft; VBA is prohibited until owner approves architecture and non-VBA workbook.
-  - Do not set vba_authorized to true before explicit owner approval (docs/INITIAL_TASK.md stop condition).
-  - All formulas Excel 2021/2024-compatible; 365-only alternatives documented in docs/architecture.md.
-  - Only synthetic fixtures are committed; real laboratory data is excluded by policy.
+  - "Contract status: FROZEN (owner-approved architecture freeze, 2026-08-17). VBA is authorized."
+  - "The application architecture (worksheets, Tables, columns, named ranges, controlled lists, statuses, transaction types, barcode/ID formats, stock/expiry semantics, transitions, Scan/Receiving interface, formulas, append-only audit model) is frozen."
+  - "The final storage/deployment option is NOT frozen: deployment_status=proposed, deployment_option=unresolved (D-013 Proposed)."
+  - "Any post-freeze change to a frozen member requires the documented change-control process (docs/workbook-contract.md)."
+  - "All formulas Excel 2021/2024-compatible; 365-only alternatives documented in docs/architecture.md."
+  - "Only synthetic fixtures are committed; real laboratory data is excluded by policy."
