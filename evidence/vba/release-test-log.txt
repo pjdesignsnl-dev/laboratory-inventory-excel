@@ -1,0 +1,29 @@
+opened release workbook (events disabled)
+Run modTestHooks.Test_RunAll in 480 ms
+OUT: contract:OK diag=[]
+OUT: drift:before=FAIL after=OK
+OUT: lookup-start
+OUT: lookup-range:$B$5:$B$25 rows=21
+OUT: lookup-type:String text=[0000001]
+OUT: vbaloop-found:1
+OUT: lookupbybarcode-start
+OUT: lookupbybarcode-end:OK row=1
+OUT: unknown-end:OK
+OUT: lookup-empty:OK
+OUT: lookup-invalid:OK
+OUT: lookup-end
+OUT: t-avail-takeopen:OK
+OUT: t-expiredby-date-takeopen:OK
+OUT: t-inuse-return:OK
+OUT: t-disposed-takeopen:OK
+OUT: t-expired-dispose:OK
+OUT: txnid-format:OK tid=T00000032
+OUT: txnid-unique:OK
+OUT: receive-one:OK cid=C000022
+OUT: receive-one-cid:OK
+OUT: receive-n:OK count=3
+OUT: receive-n-ids:C000023,C000024,C000025
+OUT: receive-n-unique:OK
+OUT: code128:OK len=10
+OUT: operator:OK op=Q
+OUT: backup:OK path=C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_backup_20260818_171740.xlsm

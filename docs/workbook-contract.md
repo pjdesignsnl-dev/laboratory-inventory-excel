@@ -14,9 +14,9 @@ block in `schema/workbook-contract.yaml`).
 - Workbook version: v0.1
 - Contract version: 1.0.0 (frozen)
 - Target Excel versions: Microsoft 365 desktop, Excel 2021/2024 desktop
-- Architecture approval reference: `docs/architecture.md`; `docs/decisions.md` D-001…D-021
+- Architecture approval reference: `docs/architecture.md`; `docs/decisions.md` D-001…D-021 (plus D-022 revision)
 - Architecture source commit: `731b7a13f6287aa843f92ee2dd8cb48f5d8b1111`
-- Workbook SHA-256: `C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A`
+- Workbook SHA-256: `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5` (revised by D-022: protection password hash removed for VBA compatibility; frozen members unchanged)
 - Excel version used for acceptance: Microsoft Excel 16.0.20228.20190 (x64)
 - Excel runtime acceptance: **29/29 PASS** (`evidence/excel-runtime/excel-runtime-results.txt`)
 - Supplementary regression: structural **51/51 PASS**; formula/business-rule **55/55 PASS**

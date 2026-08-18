@@ -1,11 +1,18 @@
 # VBA design — Laboratory Inventory for Excel
 
-**Status:** Design for the frozen application contract (D-021)
+**Status:** Design for the frozen application contract (D-021) — **IMPLEMENTED AND TESTED (2026-08-18)**
 **Contract:** `schema/workbook-contract.yaml` `status: frozen`, `contract_version: 1.0.0`
 **Architecture source commit:** `731b7a13f6287aa843f92ee2dd8cb48f5d8b1111`
-**Workbook SHA-256:** `C3D27FE82840833459674690DA250EC1500E99CC9337E52F4A7C4FAF81ED787A`
+**Workbook SHA-256 (D-022 revised):** `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5`
 **Excel version:** 16.0.20228.20190 (x64)
-**Date:** 2026-08-17
+**Date:** 2026-08-17 (design); implementation completed 2026-08-18
+
+> Implementation status: all 13 standard modules + ThisWorkbook/Scan document
+> modules are implemented, source-controlled in `vba/`, embedded in
+> `workbook/LabInventory_v1.0.0.xlsm` (SHA-256 `181DEF1A…`), and pass the VBA
+> test sweeps (`Test_RunAll`, `Test_PhaseF`) plus scanner-simulation and
+> 500-container performance tests in real desktop Excel. See
+> `evidence/vba/stages2-13-results.md`, `releases/LabInventory_v1.0.0-RELEASE.md`.
 
 ---
 
