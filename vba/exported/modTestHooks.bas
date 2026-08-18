@@ -40,7 +40,7 @@ Public Sub Test_ContractDrift()
     wb.Names(RNG_SCAN_INPUT).Delete
     Dim okBefore As Boolean
     okBefore = modWorkbookContract.ContractValidate(True)
-    wb.Names.Add Name:=RNG_SCAN_INPUT, RefersTo:=savedRefersTo
+    wb.Names.Add name:=RNG_SCAN_INPUT, RefersTo:=savedRefersTo
     Dim okAfter As Boolean
     okAfter = modWorkbookContract.ContractValidate(True)
     LogLine "drift:before=" & IIf(okBefore, "OK", "FAIL") & " after=" & IIf(okAfter, "OK", "FAIL")
@@ -58,8 +58,8 @@ Public Sub Test_BarcodeLookup()
     Set lo = ThisWorkbook.Worksheets("Containers").ListObjects("tblContainers")
     Dim rng As Range
     Set rng = lo.ListColumns("Barcode").DataBodyRange
-    LogLine "lookup-range:" & rng.Address & " rows=" & rng.Rows.Count
-    LogLine "lookup-type:" & TypeName(rng.Cells(1, 1).Value2) & " text=[" & rng.Cells(1, 1).Text & "]"
+    LogLine "lookup-range:" & rng.Address & " rows=" & rng.Rows.count
+    LogLine "lookup-type:" & TypeName(rng.Cells(1, 1).Value2) & " text=[" & rng.Cells(1, 1).text & "]"
 
     Dim found As Long
     found = 0
@@ -99,7 +99,7 @@ End Sub
 Public Sub Test_Transitions()
     On Error Resume Next
     Dim msg As String
-    Dim mc As MsgClass
+    Dim mc As msgClass
     ' Available -> TakeOpen allowed
     LogLine "t-avail-takeopen:" & IIf(modValidation.ValidateTransition(STATUS_AVAILABLE, TXN_TAKE_OPEN, Empty, msg, mc), "OK", "FAIL")
     ' Available expired-by-date -> TakeOpen must be BLOCKED (D-018)

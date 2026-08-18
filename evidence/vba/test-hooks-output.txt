@@ -1,3 +1,27 @@
 contract:OK diag=[]
 drift:before=FAIL after=OK
-drift-diag=[]
+lookup-start
+lookup-range:$B$5:$B$25 rows=21
+lookup-type:String text=[0000001]
+vbaloop-found:1
+lookupbybarcode-start
+lookupbybarcode-end:OK row=1
+unknown-end:OK
+lookup-empty:OK
+lookup-invalid:OK
+lookup-end
+t-avail-takeopen:OK
+t-expiredby-date-takeopen:OK
+t-inuse-return:OK
+t-disposed-takeopen:OK
+t-expired-dispose:OK
+txnid-format:OK tid=T00000032
+txnid-unique:OK
+receive-one:OK cid=C000022
+receive-one-cid:OK
+receive-n:OK count=3
+receive-n-ids:C000023,C000024,C000025
+receive-n-unique:OK
+code128:OK len=10
+operator:OK op=Q
+backup:OK path=C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_backup_20260818_165901.xlsm

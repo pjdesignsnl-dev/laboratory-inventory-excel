@@ -123,7 +123,32 @@ def build(output_path: str) -> str:
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     wb.save(output_path)
+    _strip_protection_password(output_path)
     return output_path
+
+
+def _strip_protection_password(path):
+    """Remove password="..." attributes from every sheetProtection element.
+
+    openpyxl hashes even an empty password to password="CE4B"; Excel then
+    treats the sheet as password-protected and VBA Unprotect (no arg) prompts,
+    which deadlocks under COM. Stripping the attribute yields the intended
+    no-password deterrent protection (D-015) that VBA can unprotect cleanly.
+    """
+    import re as _re
+    import shutil as _shutil
+    import zipfile as _zipfile
+
+    tmp = path + ".tmp"
+    with _zipfile.ZipFile(path, "r") as zin, _zipfile.ZipFile(tmp, "w", _zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if item.filename.startswith("xl/worksheets/") and item.filename.endswith(".xml"):
+                text = data.decode("utf-8")
+                text = _re.sub(r'\s+password="[^"]*"', "", text)
+                data = text.encode("utf-8")
+            zout.writestr(item, data)
+    _shutil.move(tmp, path)
 
 
 # ------------------------------------------------------------------ Settings
@@ -902,7 +927,11 @@ def _apply_protection(wb):
     for name in SHEET_ORDER:
         ws = wb[name]
         ws.protection.sheet = True
-        ws.protection.password = ""
+        # NOTE: do NOT set ws.protection.password — openpyxl hashes even "" to
+        # password="CE4B", which makes Excel's VBA Unprotect hang (it prompts
+        # for a password). The password attribute is stripped from the saved
+        # XML in post_process_protection() so the sheet is protected with no
+        # password hash (deterrent, per D-015) and VBA can Unprotect.
         ws.protection.formatCells = False
         ws.protection.selectLockedCells = True
         ws.protection.selectUnlockedCells = False

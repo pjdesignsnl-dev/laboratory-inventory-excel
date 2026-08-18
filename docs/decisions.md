@@ -254,3 +254,14 @@ This log is append-only. Do not renumber or silently rewrite accepted decisions.
 - **Consequences:** VBA may now be designed and implemented against the exact frozen contract. Any change to a frozen member requires the change-control process. The final release manifest must list the unresolved deployment choice until the owner decides.
 - **Files/components affected:** `schema/workbook-contract.yaml`, `docs/workbook-contract.md`, `docs/vba-design.md` (next), VBA sources in `vba/`, workbook `LabInventory_v1.0-candidate.xlsm`.
 - **Supersedes:** The draft status of the contract (prior `status: draft`).
+
+### D-022 — Contract revision: sheet-protection password hash removed (VBA compatibility)
+
+- **Date:** 2026-08-18
+- **Status:** Accepted (documented contract revision under the frozen change-control process)
+- **Context:** VBA implementation exposed a defect in the frozen macro-free workbook: openpyxl writes `password="CE4B"` on every `sheetProtection` element even for an empty password. Excel treats this as real password protection; VBA `Worksheet.Unprotect` (no argument) then prompts for a password, which deadlocks under COM automation (verified: `Unprotect` hangs on every protected sheet; `Unprotect ""` also hangs; removing the hash makes `Unprotect` work and all VBA mutation succeed — verified on a hash-free scratch build, including ReceiveOne completing in ~300 ms).
+- **Decision:** Strip the `password` attribute from every `sheetProtection` element in the workbook XML (`scripts/build_workbook.py::_strip_protection_password`). Protection remains enabled (all sheets still protected; workbook structure still protected) with the intended no-password deterrent (D-015), and VBA can unprotect/mutate/re-protect cleanly. This changes the workbook bytes (new SHA) but **not** any frozen worksheet/Table/column/formula/validation/status/transaction member.
+- **Alternatives considered:** Passing the empty password in every VBA Unprotect call (rejected — still hangs); removing sheet protection entirely (rejected — violates D-015 protection design).
+- **Consequences:** New workbook SHA-256: `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5`. All non-VBA regression re-run and passing: structural 51/51, formula 55/55, real-Excel runtime acceptance 29/29 (with hash-free protection). VBA mutation workflows (receive, scan-commit, etc.) now execute in real Excel.
+- **Files/components affected:** `scripts/build_workbook.py`, `workbook/LabInventory_v0.1.xlsx` (rebuilt), `tests/non-vba-results.md`, `evidence/`.
+- **Supersedes:** None (revision within the frozen contract; architecture members unchanged).

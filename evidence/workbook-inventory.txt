@@ -228,13 +228,13 @@ CONDITIONAL FORMATTING:
       expression: ['AND($E5<>"",$E5>=TODAY(),$E5<=TODAY()+90)']
 
 PROTECTION:
-  Dashboard: protected=True password='CE4B'
-  Scan: protected=True password='CE4B'
-  Receiving: protected=True password='CE4B'
-  Products: protected=True password='CE4B'
-  Containers: protected=True password='CE4B'
-  Transactions: protected=True password='CE4B'
-  Suppliers: protected=True password='CE4B'
-  Locations: protected=True password='CE4B'
-  Settings: protected=True password='CE4B'
+  Dashboard: protected=True password=None
+  Scan: protected=True password=None
+  Receiving: protected=True password=None
+  Products: protected=True password=None
+  Containers: protected=True password=None
+  Transactions: protected=True password=None
+  Suppliers: protected=True password=None
+  Locations: protected=True password=None
+  Settings: protected=True password=None
   workbook structure locked: True
