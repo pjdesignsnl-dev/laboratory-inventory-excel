@@ -49,9 +49,15 @@ Public Function ValidateTransition(ByVal currentStatus As String, _
 End Function
 
 Private Function IsExpiredByDate(ByVal expiryDate As Variant) As Boolean
+    ' ExpiryDate cells hold date serials (Double); IsDate() is FALSE for a raw
+    ' Double serial even though CDate() converts it. Accept numeric serials too.
+    On Error GoTo done
     If IsBlankOrEmpty(expiryDate) Then Exit Function
-    If Not IsDate(expiryDate) Then Exit Function
+    If Not IsDate(expiryDate) Then
+        If Not IsNumeric(expiryDate) Then Exit Function
+    End If
     If CDate(expiryDate) < modUtilities.GetNow() Then IsExpiredByDate = True
+done:
 End Function
 
 Private Function DecisionFor(ByVal status As String, ByVal txn As String, ByVal expiryDate As Variant) As TransitionDecision
@@ -216,5 +222,9 @@ Public Function IsUsableAvailable(ByVal status As String, ByVal expiryDate As Va
         IsUsableAvailable = True
         Exit Function
     End If
-    If IsDate(expiryDate) And CDate(expiryDate) >= modUtilities.GetNow() Then IsUsableAvailable = True
+    ' Accept both Date-typed values and numeric serials (IsDate is False for
+    ' raw Double serials even though CDate converts them).
+    On Error GoTo done
+    If (IsDate(expiryDate) Or IsNumeric(expiryDate)) And CDate(expiryDate) >= modUtilities.GetNow() Then IsUsableAvailable = True
+done:
 End Function

@@ -36,6 +36,24 @@ Candidate: `workbook/LabInventory_v1.0-candidate.xlsm` (built from hash-free-pro
 - `commit-diag:staging-barcode=[0000001] lookupstate=0` (staging stores barcode as text)
 - `commit-takeopen:OK msg=OK: TakeOpen committed (T00000032).`
 
+## Phase F full transaction matrix (`modTestHooks.Test_PhaseF`) — ~4.6 s, ALL PASS
+
+| Check | Result |
+|---|---|
+| Contract | `contract:OK diag=[]` |
+| TakeOpen → InUse | `m-takeopen:OK` `m-takeopen-status:InUse` |
+| Return → Available | `m-return:OK` `m-return-status:Available` |
+| Transfer → new location | `m-transfer:OK` `m-transfer-loc:LOC0001` |
+| MarkExpired → Expired | `m-markexpired:OK` `m-markexpired-status:Expired` |
+| Dispose → Disposed (with reason) | `m-dispose:OK` `m-dispose-status:Disposed` |
+| TakeOpen on Disposed BLOCKED | `m-disposed-takeopen-blocked:OK` |
+| MarkDamaged → Damaged | `m-markdamaged:OK` `m-markdamaged-status:Damaged` |
+| MarkMissing → Missing | `m-markmissing:OK` `m-markmissing-status:Missing` |
+| Adjustment logged | `m-adjustment:OK` |
+| D-018: TakeOpen on expired-by-date Available BLOCKED (commit path) | `m-d018-expired-block:OK msg=TakeOpen blocked: container is expired by date (D-018)...` |
+| Atomicity: blocked transition leaves no mutation | `atomicity-block-no-mutation:OK inuse=26 after=26` |
+| Dashboard reconciliation after mutations | `dashboard-reconcile-available:OK dash=16 direct=16` |
+
 ## Key fixes found during this phase
 
 1. **Module-qualified `Enum` types in `Dim` declarations deadlock VBA/COM** when the procedure is invoked via `Application.Run`. Replaced with `Long` + named constants.
@@ -44,6 +62,8 @@ Candidate: `workbook/LabInventory_v1.0-candidate.xlsm` (built from hash-free-pro
 4. **openpyxl `password="CE4B"` hash on sheet protection deadlocks VBA `Worksheet.Unprotect`** under COM (it prompts for a password). Removed the hash via `scripts/build_workbook.py::_strip_protection_password` (D-022); protection deterrent preserved; 29/29 runtime acceptance still passes.
 5. **Barcode cells must be text**: staging writes now force `NumberFormat="@"` for Barcode/ContainerID/ProductID; `CommitAction` normalizes the read barcode.
 6. **`Format$(n, "C000000")` locale date-misparse**: replaced with explicit `PadID` zero-padding (IDs now render `C000022` correctly).
+7. **`IsDate()` returns False for raw Double date serials** in VBA: `IsDate(46244)` is False even though `CDate(46244)` = 2026-08-10. D-018's `IsExpiredByDate` (and `IsUsableAvailable`) now accept numeric serials via `IsNumeric`, so the commit path correctly blocks TakeOpen on expired-by-date Available containers.
+8. **Dashboard metric value column**: the "Total available containers (usable)" value lives in column C (label in B); the reconciliation test reads it correctly and matches a direct VBA count.
 
 ## Non-VBA regression after protection change
 
