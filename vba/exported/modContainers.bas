@@ -10,7 +10,7 @@ Option Explicit
 ' ============================================================================
 
 Public Type ContainerState
-    Row As Long
+    row As Long
     status As String
     StorageLocationID As String
     OpenedDate As Variant
@@ -120,9 +120,9 @@ Public Function CaptureState(ByVal rowNum As Long) As ContainerState
     Dim lo As ListObject
     Set lo = ThisWorkbook.Worksheets(WS_CONTAINERS).ListObjects(TBL_CONTAINERS)
     Dim r As Long
-    r = lo.DataBodyRange.Row + rowNum - 1
+    r = lo.DataBodyRange.row + rowNum - 1
     With CaptureState
-        .Row = rowNum
+        .row = rowNum
         .status = CellValue(lo, rowNum, COL_STATUS)
         .StorageLocationID = CellValue(lo, rowNum, COL_STORAGE_LOCATION_ID)
         .OpenedDate = CellValue(lo, rowNum, COL_OPENED_DATE)
@@ -172,12 +172,12 @@ Public Sub RollbackState(ByRef saved As ContainerState)
     Set ws = ThisWorkbook.Worksheets(WS_CONTAINERS)
     modUtilities.UnprotectSheet ws
 
-    SetCellValue lo, saved.Row, COL_STATUS, saved.status
-    SetCellValue lo, saved.Row, COL_STORAGE_LOCATION_ID, saved.StorageLocationID
-    SetCellValue lo, saved.Row, COL_OPENED_DATE, saved.OpenedDate
-    SetCellValue lo, saved.Row, COL_DISPOSAL_DATE, saved.DisposalDate
-    SetCellValue lo, saved.Row, COL_DISPOSAL_REASON, saved.disposalReason
-    SetCellValue lo, saved.Row, COL_NOTES, saved.notes
+    SetCellValue lo, saved.row, COL_STATUS, saved.status
+    SetCellValue lo, saved.row, COL_STORAGE_LOCATION_ID, saved.StorageLocationID
+    SetCellValue lo, saved.row, COL_OPENED_DATE, saved.OpenedDate
+    SetCellValue lo, saved.row, COL_DISPOSAL_DATE, saved.DisposalDate
+    SetCellValue lo, saved.row, COL_DISPOSAL_REASON, saved.disposalReason
+    SetCellValue lo, saved.row, COL_NOTES, saved.notes
 
     modUtilities.ProtectSheet ws
 End Sub
@@ -200,7 +200,7 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
     Dim lr As ListRow
     Set lr = lo.ListRows.Add
     Dim r As Long
-    r = lo.DataBodyRange.Row + lo.DataBodyRange.Rows.count - 1
+    r = lo.DataBodyRange.row + lo.DataBodyRange.Rows.count - 1
 
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_CONTAINER_ID)).Value2 = cid
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_BARCODE)).Value2 = barcode

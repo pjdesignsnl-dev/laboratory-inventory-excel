@@ -1,5 +1,5 @@
 opened (events disabled)
-Run modTestHooks.Test_PhaseF in 4659 ms
+Run modTestHooks.Test_PhaseF in 2041 ms
 OUT: contract:OK diag=[]
 OUT: m-takeopen:OK
 OUT: m-takeopen-status:InUse

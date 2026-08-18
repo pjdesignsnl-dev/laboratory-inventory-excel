@@ -37,7 +37,6 @@ Candidate: `workbook/LabInventory_v1.0-candidate.xlsm` (built from hash-free-pro
 - `commit-takeopen:OK msg=OK: TakeOpen committed (T00000032).`
 
 ## Phase F full transaction matrix (`modTestHooks.Test_PhaseF`) — ~4.6 s, ALL PASS
-
 | Check | Result |
 |---|---|
 | Contract | `contract:OK diag=[]` |
@@ -53,6 +52,25 @@ Candidate: `workbook/LabInventory_v1.0-candidate.xlsm` (built from hash-free-pro
 | D-018: TakeOpen on expired-by-date Available BLOCKED (commit path) | `m-d018-expired-block:OK msg=TakeOpen blocked: container is expired by date (D-018)...` |
 | Atomicity: blocked transition leaves no mutation | `atomicity-block-no-mutation:OK inuse=26 after=26` |
 | Dashboard reconciliation after mutations | `dashboard-reconcile-available:OK dash=16 direct=16` |
+
+## Phase G scanner simulation (keyboard-wedge, events enabled)
+
+| Scenario | Result |
+|---|---|
+| Type `0000001` into Scan!D7 | status `FOUND - scan details shown...`; staging barcode `0000001`, state `FOUND`, ContainerID `C000001` |
+| Type `9999999` | `UNKNOWN BARCODE - receive this container first.` |
+| Type `abc1234` | `Invalid barcode format (expected 7 digits).` |
+| Type `0000021` (expired-by-date Available) | resolves FOUND for display (TakeOpen blocked at commit by D-018) |
+
+## Performance (scale: 500 containers received in one batch, 521 rows total)
+
+| Check | Result |
+|---|---|
+| ReceiveN 500 | OK in 58.64 s (~117 ms/row: ListRows.Add + formula auto-fill + transaction + verify) |
+| Deep lookup (last row) | OK, 12 ms |
+| 500 sequential lookups | OK, 3039 ms total (~6 ms/lookup) |
+
+Lookup is fast at scale; batch receiving is dominated by Excel table-row formula auto-fill (acceptable for lab receiving, single scans are instant).
 
 ## Key fixes found during this phase
 

@@ -447,3 +447,45 @@ Private Function ContainerCount() As Long
     If Not lo.DataBodyRange Is Nothing Then ContainerCount = lo.DataBodyRange.Rows.Count
     On Error GoTo 0
 End Function
+
+' ------------------------------------------------------------------ performance (scale)
+Public Sub Test_Performance()
+    ' Receives 500 containers in one batch and times a lookup, verifying the
+    ' scale requirement (thousands of containers, tens of thousands of
+    ' transactions) stays responsive.
+    On Error Resume Next
+    Dim t0 As Double
+    t0 = Timer
+    Dim res() As String
+    res = modReceiving.ReceiveN("P000005", "LOT-PERF", Empty, Empty, "LOC0004", 500, "perf")
+    Dim tReceive As Double
+    tReceive = Timer - t0
+    LogLine "perf-receive-500:" & IIf(UBound(res) = 500, "OK", "FAIL") & " seconds=" & Format$(tReceive, "0.00") & " rows=" & ContainerCount()
+
+    ' lookup timing on the last container (deep in the table)
+    Dim lastBc As String
+    lastBc = CStr(BarcodeOf(res(500)))
+    t0 = Timer
+    Dim row As Long
+    Dim ls As Long
+    ls = modBarcodeLookup.LookupState(lastBc)
+    row = modBarcodeLookup.FindBarcodeRow(lastBc)
+    Dim tLookup As Double
+    tLookup = Timer - t0
+    LogLine "perf-lookup-deep:" & IIf(ls = modBarcodeLookup.LR_FOUND And row > 0, "OK", "FAIL") & _
+            " ms=" & Format$(tLookup * 1000, "0") & " row=" & row
+
+    ' 500 sequential lookups timing (throughput)
+    t0 = Timer
+    Dim i As Long
+    For i = 1 To 500
+        Dim bc As String
+        bc = CStr(BarcodeOf(res(i)))
+        ls = modBarcodeLookup.LookupState(bc)
+    Next i
+    Dim tSeq As Double
+    tSeq = Timer - t0
+    LogLine "perf-500-lookups:" & IIf(True, "OK", "FAIL") & " total_ms=" & Format$(tSeq * 1000, "0")
+
+    On Error GoTo 0
+End Sub

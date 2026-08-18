@@ -134,10 +134,10 @@ Public Sub PopulateScanStaging(ByVal barcode As String, ByVal rowNum As Long, By
     modUtilities.UnprotectSheet ws
 
     Dim r As Long
-    r = lo.DataBodyRange.Row
+    r = lo.DataBodyRange.row
     If lo.DataBodyRange.Rows.count = 0 Then
         lo.ListRows.Add
-        r = lo.DataBodyRange.Row
+        r = lo.DataBodyRange.row
     End If
 
     SetCellValue ws, r, "Barcode", barcode
@@ -221,12 +221,12 @@ Public Function LocationName(ByVal locationID As String) As String
     Next r
 End Function
 
-Private Sub SetCellValue(ByRef ws As Worksheet, ByVal Row As Long, ByVal colName As String, ByVal value As Variant)
+Private Sub SetCellValue(ByRef ws As Worksheet, ByVal row As Long, ByVal colName As String, ByVal value As Variant)
     Dim hdr As Range
     Set hdr = ws.Rows(loHeaderRow(ws)).Find(What:=colName, LookAt:=xlWhole)
     If hdr Is Nothing Then Exit Sub
     Dim cell As Range
-    Set cell = ws.Cells(Row, hdr.Column)
+    Set cell = ws.Cells(row, hdr.Column)
     ' Barcode and ID cells must be TEXT (leading zeros preserved, no coercion)
     If colName = "Barcode" Or colName = "ContainerID" Or colName = "ProductID" Then
         cell.NumberFormat = "@"
@@ -235,7 +235,7 @@ Private Sub SetCellValue(ByRef ws As Worksheet, ByVal Row As Long, ByVal colName
 End Sub
 
 Private Function loHeaderRow(ByRef ws As Worksheet) As Long
-    loHeaderRow = ws.ListObjects(TBL_SCAN_RESULTS).HeaderRowRange.Row
+    loHeaderRow = ws.ListObjects(TBL_SCAN_RESULTS).HeaderRowRange.row
 End Function
 
 Private Function LookupStateText(ByVal result As Long) As String
