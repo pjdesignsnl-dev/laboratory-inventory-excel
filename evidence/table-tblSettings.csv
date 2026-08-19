@@ -1,0 +1,9 @@
+﻿SettingKey,SettingValue,Description
+ExpiryWarningDays30,30,Expiry warning band: days until expiry to flag (30)
+ExpiryWarningDays60,60,Expiry warning band: days until expiry to flag (60)
+ExpiryWarningDays90,90,Expiry warning band: days until expiry to flag (90)
+DefaultLocationID,LOC0001,Default storage location for new containers
+DefaultStatusNewContainers,Available,Status assigned to newly received containers
+ScannerEnterSuffix,TRUE,Barcode scanner configured to send Enter suffix
+WorkbookVersion,v0.1,Workbook version label
+"Settings table (7 keys): expiry bands 30/60/90 days, default location, default new status, scanner Enter suffix, version.",,

@@ -1,0 +1,53 @@
+NON-VBA STRUCTURAL INSPECTION REPORT
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+Overall: PASS
+
+[PASS] sheet set matches contract: ['Dashboard', 'Scan', 'Receiving', 'Products', 'Containers', 'Transactions', 'Suppliers', 'Locations', 'Settings']
+[PASS] tblProducts headers match contract (21 cols)
+[PASS] tblContainers headers match contract (15 cols)
+[PASS] tblTransactions headers match contract (16 cols)
+[PASS] tblSuppliers headers match contract (8 cols)
+[PASS] tblLocations headers match contract (5 cols)
+[PASS] tblSettings headers match contract (3 cols)
+[PASS] tblStatusList headers match contract (2 cols)
+[PASS] tblTransactionTypeList headers match contract (2 cols)
+[PASS] tblExpiryClassList headers match contract (2 cols)
+[PASS] tblScanResults headers match contract (13 cols)
+[PASS] tblReceiveStaging headers match contract (12 cols)
+[PASS] workbook vs contract YAML zero drift (issues: none)
+[PASS] helper/calculated columns documented as non-authoritative in contract (issues: none)
+[PASS] all contract named ranges present (missing: none)
+[PASS] tblProducts: ProductID unique (n=6)
+[PASS] tblProducts: ProductID nonblank in all fixture rows
+[PASS] tblContainers: ContainerID unique (n=21)
+[PASS] tblContainers: ContainerID nonblank in all fixture rows
+[PASS] tblTransactions: TransactionID unique (n=31)
+[PASS] tblTransactions: TransactionID nonblank in all fixture rows
+[PASS] tblSuppliers: SupplierID unique (n=3)
+[PASS] tblSuppliers: SupplierID nonblank in all fixture rows
+[PASS] tblLocations: StorageLocationID unique (n=6)
+[PASS] tblLocations: StorageLocationID nonblank in all fixture rows
+[PASS] tblContainers: Barcode unique
+[PASS] all barcodes are 7-digit text (leading zeros preserved)
+[PASS] Containers->Products FK valid (bad: none)
+[PASS] Products->Suppliers FK valid (bad: none)
+[PASS] Containers->Locations FK valid (bad: none)
+[PASS] Transactions->Containers FK valid (bad: none)
+[PASS] Transactions->Products FK valid (bad: none)
+[PASS] Transactions->Barcode FK valid (bad: none)
+[PASS] Container Status values valid (bad: none)
+[PASS] TransactionType values valid (bad: none)
+[PASS] ProductType values valid (bad: none)
+[PASS] Category values valid (bad: none)
+[PASS] ExpiryDate >= DateReceived where both set (bad: none)
+[PASS] date cells are real dates (bad: none)
+[PASS] No Reserved in status list/fixtures (hits: none) (D-016)
+[PASS] Dashboard has 'most frequently used products' section (D-019)
+[PASS] Dashboard has 'inventory by storage location' section (D-019)
+[PASS] Products HelperAvailableStock formula
+[PASS] Products HelperStockClass formula
+[PASS] Dashboard has formula stats
+[PASS] Scan staging row has formulas
+[PASS] Transactions: all rows have TransactionID (append-only integrity)
+[PASS] all sheets protected
+[PASS] workbook structure protected

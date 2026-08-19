@@ -1,0 +1,240 @@
+=== Laboratory Inventory v0.1 — workbook inventory ===
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+
+SHEETS:
+  Dashboard  (tables: none)
+  Scan  (tables: tblScanResults)
+  Receiving  (tables: tblReceiveStaging)
+  Products  (tables: tblProducts)
+  Containers  (tables: tblContainers)
+  Transactions  (tables: tblTransactions)
+  Suppliers  (tables: tblSuppliers)
+  Locations  (tables: tblLocations)
+  Settings  (tables: tblSettings, tblStatusList, tblTransactionTypeList, tblExpiryClassList)
+
+TABLES AND COLUMNS:
+
+tblProducts on Products ref A4:U10
+    ProductID                        ProductID
+    ProductName                      ProductName
+    ProductType                      ProductType
+    Category                         Category
+    Manufacturer                     Manufacturer
+    ManufacturerCatalogueNumber      ManufacturerCatalogueNumber
+    CASNumber                        CASNumber
+    Concentration                    Concentration
+    Grade                            Grade
+    StandardContainerDescription     StandardContainerDescription
+    SupplierID                       SupplierID
+    StorageRequirements              StorageRequirements
+    HazardClassification             HazardClassification
+    SDSReference                     SDSReference
+    MinimumContainerStock            MinimumContainerStock
+    TargetContainerStock             TargetContainerStock
+    ReorderQuantity                  ReorderQuantity
+    Active                           Active
+    Notes                            Notes
+    HelperAvailableStock             HelperAvailableStock
+    HelperStockClass                 HelperStockClass
+
+tblContainers on Containers ref A4:O25
+    ContainerID                      ContainerID
+    Barcode                          Barcode
+    ProductID                        ProductID
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    RetestDate                       RetestDate
+    DateReceived                     DateReceived
+    StorageLocationID                StorageLocationID
+    Status                           Status
+    OpenedDate                       OpenedDate
+    DisposalDate                     DisposalDate
+    DisposalReason                   DisposalReason
+    Notes                            Notes
+    HelperContainerNum               HelperContainerNum
+    HelperBarcodeNum                 HelperBarcodeNum
+
+tblTransactions on Transactions ref A4:P35
+    TransactionID                    TransactionID
+    Timestamp                        Timestamp
+    Operator                         Operator
+    Barcode                          Barcode
+    ContainerID                      ContainerID
+    ProductID                        ProductID
+    ProductName                      ProductName
+    TransactionType                  TransactionType
+    PreviousStatus                   PreviousStatus
+    NewStatus                        NewStatus
+    PreviousLocation                 PreviousLocation
+    NewLocation                      NewLocation
+    BatchLotNumber                   BatchLotNumber
+    Reason                           Reason
+    Reference                        Reference
+    Notes                            Notes
+
+tblSuppliers on Suppliers ref A4:H7
+    SupplierID                       SupplierID
+    SupplierName                     SupplierName
+    ContactName                      ContactName
+    Email                            Email
+    Phone                            Phone
+    Website                          Website
+    Address                          Address
+    Notes                            Notes
+
+tblLocations on Locations ref A4:E10
+    StorageLocationID                StorageLocationID
+    LocationName                     LocationName
+    LocationType                     LocationType
+    Description                      Description
+    Active                           Active
+
+tblSettings on Settings ref A5:C13
+    SettingKey                       SettingKey
+    SettingValue                     SettingValue
+    Description                      Description
+
+tblStatusList on Settings ref A16:B22
+    StatusValue                      StatusValue
+    Label                            Label
+
+tblTransactionTypeList on Settings ref A25:B34
+    TransactionTypeValue             TransactionTypeValue
+    Label                            Label
+
+tblExpiryClassList on Settings ref A37:B42
+    ExpiryClassValue                 ExpiryClassValue
+    Label                            Label
+
+tblScanResults on Scan ref D12:P13
+    Barcode                          Barcode
+    ContainerID                      ContainerID
+    ProductID                        ProductID
+    ProductName                      ProductName
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    StorageLocationID                StorageLocationID
+    LocationName                     LocationName
+    Status                           Status
+    OpenedDate                       OpenedDate
+    ExpiryClass                      ExpiryClass
+    DuplicateFlag                    DuplicateFlag
+    LookupState                      LookupState
+
+tblReceiveStaging on Receiving ref B31:M32
+    ProductID                        ProductID
+    ProductName                      ProductName
+    NextContainerID                  NextContainerID
+    NextBarcode                      NextBarcode
+    BatchLotNumber                   BatchLotNumber
+    ExpiryDate                       ExpiryDate
+    RetestDate                       RetestDate
+    StorageLocationID                StorageLocationID
+    Status                           Status
+    Quantity                         Quantity
+    ValidationMessage                ValidationMessage
+    ReadinessState                   ReadinessState
+
+NAMED RANGES:
+  DefaultLocationID -> 'Settings'!$B9:$B9
+  DefaultStatusNewContainers -> 'Settings'!$B10:$B10
+  ExpiryWarningDays30 -> 'Settings'!$B6:$B6
+  ExpiryWarningDays60 -> 'Settings'!$B7:$B7
+  ExpiryWarningDays90 -> 'Settings'!$B8:$B8
+  lstBool -> 'Settings'!$H35:$H36
+  lstCategory -> 'Settings'!$H8:$H13
+  lstDisposalReason -> 'Settings'!$H22:$H26
+  lstExpiryClassList -> 'Settings'!$A$1:$A$1048576
+  lstLocationIDs -> 'Locations'!$A$1:$A$1048576
+  lstLocationType -> 'Settings'!$H15:$H20
+  lstProductType -> 'Settings'!$H4:$H6
+  lstProductsProductID -> 'Products'!$A$1:$A$1048576
+  lstProductsProductName -> 'Products'!$B$1:$B$1048576
+  lstStatusList -> 'Settings'!$A$1:$A$1048576
+  lstSupplierIDs -> 'Suppliers'!$A$1:$A$1048576
+  lstTransactionReason -> 'Settings'!$H28:$H33
+  lstTransactionTypeList -> 'Settings'!$A$1:$A$1048576
+  rngReceiveExpiry -> 'Receiving'!$D13:$D13
+  rngReceiveLocation -> 'Receiving'!$D15:$D15
+  rngReceiveLot -> 'Receiving'!$D12:$D12
+  rngReceiveNextBarcode -> 'Receiving'!$D10:$D10
+  rngReceiveNextContainerID -> 'Receiving'!$D9:$D9
+  rngReceiveProductID -> 'Receiving'!$D7:$D7
+  rngReceiveQuantity -> 'Receiving'!$D16:$D16
+  rngReceiveRetest -> 'Receiving'!$D14:$D14
+  rngReceiveStatusMessage -> 'Receiving'!$D19:$D19
+  rngScanInput -> 'Scan'!$D7:$D7
+  rngScanResultCard -> 'Scan'!$D4:$K34
+  rngScanStatusMessage -> 'Scan'!$D9:$D9
+
+FORMULAS (sampled, one per category):
+  Products T (AvailableStock): '=COUNTIFS(tblContainers[ProductID],A5,tblContainers[Status],"Available")-COUNTIFS(tblContainers[ProductID],A5,tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())'
+  Products U (StockClass): '=IF(T5=0,"OutOfStock",IF(T5<O5,"Reorder",IF(T5<P5,"Low","OK")))'
+  Dashboard B6: '=COUNTIF(tblContainers[Status],"Available")-COUNTIFS(tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())'
+
+VALIDATION RULES:
+  Scan: custom =AND(LEN(rngScanInput)=7,ISNUMBER(VALUE(rngScanInput))) -> D7
+  Receiving: list =lstProductsProductID -> D7
+  Receiving: list =lstLocationIDs -> D15
+  Receiving: list =lstStatusList -> D17
+  Receiving: whole 1 -> D16
+  Products: list =lstProductType -> E5:E2000
+  Products: list =lstCategory -> F5:F2000
+  Products: list =lstBool -> R5:R2000
+  Products: list =lstSupplierIDs -> K5:K2000
+  Containers: list =lstStatusList -> I5:I2000
+  Containers: list =lstDisposalReason -> L5:L2000
+  Containers: list =lstProductsProductID -> C5:C2000
+  Containers: list =lstLocationIDs -> H5:H2000
+  Transactions: list =lstTransactionTypeList -> H5:H4000
+  Transactions: list =lstStatusList -> I5:J4000
+  Transactions: list =lstTransactionReason -> N5:N4000
+  Locations: list =lstLocationType -> C5:C2000
+  Locations: list =lstBool -> E5:E2000
+
+CONDITIONAL FORMATTING:
+  Dashboard: F22
+      expression: ['$F22="Reorder"']
+      expression: ['$F22="OutOfStock"']
+      expression: ['$F22="OK"']
+  Dashboard: F23
+      expression: ['$F23="Reorder"']
+      expression: ['$F23="OutOfStock"']
+      expression: ['$F23="OK"']
+  Dashboard: F24
+      expression: ['$F24="Reorder"']
+      expression: ['$F24="OutOfStock"']
+      expression: ['$F24="OK"']
+  Dashboard: F25
+      expression: ['$F25="Reorder"']
+      expression: ['$F25="OutOfStock"']
+      expression: ['$F25="OK"']
+  Dashboard: F26
+      expression: ['$F26="Reorder"']
+      expression: ['$F26="OutOfStock"']
+      expression: ['$F26="OK"']
+  Dashboard: F27
+      expression: ['$F27="Reorder"']
+      expression: ['$F27="OutOfStock"']
+      expression: ['$F27="OK"']
+  Containers: I5:I2000
+      expression: ['$I5="Available"']
+      expression: ['$I5="Expired"']
+      expression: ['OR($I5="Damaged",$I5="Missing",$I5="Disposed")']
+  Containers: B5:B2000
+      expression: ['COUNTIF($B$5:$B$2000,$B5)>1']
+  Containers: E5:E2000
+      expression: ['AND($E5<>"",$E5<TODAY())']
+      expression: ['AND($E5<>"",$E5>=TODAY(),$E5<=TODAY()+90)']
+
+PROTECTION:
+  Dashboard: protected=True password=None
+  Scan: protected=True password=None
+  Receiving: protected=True password=None
+  Products: protected=True password=None
+  Containers: protected=True password=None
+  Transactions: protected=True password=None
+  Suppliers: protected=True password=None
+  Locations: protected=True password=None
+  Settings: protected=True password=None
+  workbook structure locked: True

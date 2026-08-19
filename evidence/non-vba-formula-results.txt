@@ -1,0 +1,63 @@
+FORMULA/BUSINESS-RULE TEST RESULTS (independent evaluation via 'formulas' library)
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+Flattened copy: C:\Users\Q\Documents\laboratory-inventory-excel\.tools\eval\flattened_v0.1.xlsx
+Engine: formulas library (Excel formula semantics)
+NOTE: independent Excel-formula evaluation, NOT desktop Excel testing.
+
+TOTAL: 55 passed, 0 failed
+
+[PASS] F01-P000001 Available stock P000001: got 3.0 expected 3.0 
+[PASS] F01-P000002 Available stock P000002: got 3.0 expected 3.0 
+[PASS] F01-P000003 Available stock P000003: got 4.0 expected 4.0 
+[PASS] F01-P000004 Available stock P000004: got 1.0 expected 1.0 
+[PASS] F01-P000005 Available stock P000005: got 2.0 expected 2.0 
+[PASS] F01-P000006 Available stock P000006: got 2.0 expected 2.0 
+[PASS] F02-P000001 Stock class P000001: got 'Low' expected 'Low' 
+[PASS] F02-P000002 Stock class P000002: got 'Low' expected 'Low' 
+[PASS] F02-P000003 Stock class P000003: got 'OK' expected 'OK' 
+[PASS] F02-P000004 Stock class P000004: got 'Low' expected 'Low' 
+[PASS] F02-P000005 Stock class P000005: got 'Low' expected 'Low' 
+[PASS] F02-P000006 Stock class P000006: got 'Reorder' expected 'Reorder' 
+[PASS] C001 Dashboard total available containers: got 15.0 expected 15.0 
+[PASS] C002-dash-expired Dashboard expired count: got 2.0 expected 2.0 C000014 + C000021 (by date)
+[PASS] C002-dash-30 Dashboard expiring <=30: got 2.0 expected 2.0 C000012 + C000013
+[PASS] C002-dash-60 Dashboard expiring 31-60: got 0.0 expected 0.0 
+[PASS] C002-dash-90 Dashboard expiring 61-90: got 1.0 expected 1.0 C000009 (2026-10-31, +75d)
+[PASS] C003-dash-oos Dashboard out-of-stock count: got 0.0 expected 0.0 
+[PASS] C003-dash-reorder Dashboard reorder count: got 1.0 expected 1.0 
+[PASS] C003-dash-low Dashboard low count: got 4.0 expected 4.0 
+[PASS] C004-r34 Dashboard category row 34: got 3.0 expected 3.0 
+[PASS] C004-r35 Dashboard category row 35: got 3.0 expected 3.0 
+[PASS] C004-r36 Dashboard category row 36: got 5.0 expected 5.0 
+[PASS] C004-r37 Dashboard category row 37: got 2.0 expected 2.0 
+[PASS] C004-r38 Dashboard category row 38: got 2.0 expected 2.0 
+[PASS] C004-r39 Dashboard category row 39: got 0.0 expected 0.0 
+[PASS] C005-r43 Dashboard frequently-used row 43: got 1.0 expected 1.0 
+[PASS] C005-r44 Dashboard frequently-used row 44: got 1.0 expected 1.0 
+[PASS] C005-r45 Dashboard frequently-used row 45: got 1.0 expected 1.0 
+[PASS] C005-r46 Dashboard frequently-used row 46: got 1.0 expected 1.0 
+[PASS] C005-r47 Dashboard frequently-used row 47: got 0.0 expected 0.0 
+[PASS] C005-r48 Dashboard frequently-used row 48: got 0.0 expected 0.0 
+[PASS] C006-r52 Dashboard inventory-by-location row 52: got 5.0 expected 5.0 
+[PASS] C006-r53 Dashboard inventory-by-location row 53: got 0.0 expected 0.0 
+[PASS] C006-r54 Dashboard inventory-by-location row 54: got 2.0 expected 2.0 
+[PASS] C006-r55 Dashboard inventory-by-location row 55: got 8.0 expected 8.0 
+[PASS] C006-r56 Dashboard inventory-by-location row 56: got 0.0 expected 0.0 
+[PASS] C006-r57 Dashboard inventory-by-location row 57: got 0.0 expected 0.0 
+[PASS] D018-a Available expiring tomorrow counts today: got 1 expected 1 
+[PASS] D018-b Available expired-by-date excluded: got 0 expected 0 
+[PASS] D018-c C000021 Status remains Available (not silently changed): got 'Available' expected 'Available' 
+[PASS] F05-0-cid Scan ContainerID '0000001': got 'C000001' expected 'C000001' 
+[PASS] F05-0-status Scan Status '0000001': got 'Available' expected 'Available' 
+[PASS] F05-0-state Scan LookupState '0000001': got 'FOUND' expected 'FOUND' 
+[PASS] F05-1-cid Scan ContainerID '9999999': got '' expected '' 
+[PASS] F05-1-status Scan Status '9999999': got '' expected '' 
+[PASS] F05-1-state Scan LookupState '9999999': got 'UNKNOWN' expected 'UNKNOWN' 
+[PASS] F05-2-cid Scan ContainerID '': got '' expected '' 
+[PASS] F05-2-status Scan Status '': got '' expected '' 
+[PASS] F05-2-state Scan LookupState '': got 'EMPTY' expected 'EMPTY' 
+[PASS] D018-scan-actions Scan allowed actions for expired-by-date Available: got 'TakeOpen BLOCKED (expired by date) | Dispose | MarkExpired' expected 'TakeOpen BLOCKED (expired by date) | Dispose | MarkExpired' 
+[PASS] D018-scan-block Scan blocking message for expired-by-date Available: got 'EXPIRED BY DATE — TakeOpen blocked; record MarkExpired or Dispose' expected 'EXPIRED BY DATE — TakeOpen blocked; record MarkExpired or Dispose' 
+[PASS] D018-scan-ok Scan allowed actions for valid Available (TakeOpen allowed): got 'TakeOpen | Transfer | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)' expected 'TakeOpen | Transfer | Dispose (confirm) | MarkExpired/Damaged/Missing (confirm)' 
+[PASS] F06-dup-flag DuplicateFlag with duplicate barcode (mirror): got 'DUPLICATE' expected 'DUPLICATE' 
+[PASS] F06-dup-state LookupState with duplicate barcode (mirror): got 'DUPLICATE' expected 'DUPLICATE' 

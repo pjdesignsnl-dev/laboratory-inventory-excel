@@ -1,0 +1,7 @@
+opened macro-free base
+cleared tblProducts
+cleared tblContainers
+cleared tblTransactions
+cleared tblSuppliers
+cleared tblLocations
+saved read-only report

@@ -1,11 +1,23 @@
-contract_version: 0.0.1
-status: draft
-vba_authorized: false
+contract_version: 1.0.0
+status: frozen
+vba_authorized: true
+freeze:
+  authorization: owner-approved architecture freeze (2026-08-17)
+  architecture_source_commit: 731b7a13f6287aa843f92ee2dd8cb48f5d8b1111
+  workbook_sha256: 2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5
+  workbook_sha256_revision_note: "D-022 (2026-08-18): protection password hash removed for VBA compatibility; frozen members unchanged."
+  excel_version_acceptance: "16.0.20228.20190 (x64)"
+  excel_runtime_acceptance: "29/29 PASS (evidence/excel-runtime/excel-runtime-results.txt)"
+  supplementary_regression: "structural 51/51 PASS; formula/business-rule 55/55 PASS"
+  deployment_frozen: false
+  deployment_note: "Final storage/deployment option was NOT frozen at contract freeze; it is now ACCEPTED as Option A/B via D-023 (2026-08-19) — see the deployment block below."
 product:
   name: Laboratory Inventory for Excel
+  version: v0.1
   inventory_unit: physical_container
   tracks_remaining_volume: false
   tracks_individual_pieces: false
+  empty_inferred: false
 target_environment:
   operating_system: Windows
   excel:
@@ -13,21 +25,332 @@ target_environment:
     - Excel 2021 desktop
     - Excel 2024 desktop
   writer_count: 1
-  barcode_scanner: USB keyboard wedge
-worksheets: []
-tables: []
-named_ranges: []
+  barcode_scanner: USB keyboard wedge (Enter suffix)
+
+# Deployment is now ACCEPTED (D-023, 2026-08-19): Option A/B — single-writer
+# master .xlsm on a private network share + separate macro-free read-only
+# reporting workbook for all other PCs. No multi-user editing.
+deployment_status: accepted
+writer_model: single_writer
+reader_model: read_only_elsewhere
+deployment_option: option_a_network_share
+deployment_notes:
+  - "Option A/B (D-023): authoritative LabInventory_v1.0.0-production.xlsm on a private network share (SMB); ONLY the dedicated laboratory PC has write permission; all other PCs use the macro-free read-only report workbook."
+  - "Option C (Microsoft 365/SharePoint/OneDrive): rejected for the writer path — no M365 business tenant/SharePoint library provisioned on this machine (Excel 2024 Retail, personal OneDrive only); personal OneDrive cannot enforce the single-writer/read-only permission model."
+  - "Option D (Google Drive Office-file sync): rejected — sync introduces split-brain and is not a desktop-Excel/VBA runtime; Google Drive may be used only for backup/archive copies, never as the operational workbook."
+  - "Full trade-off analysis in docs/architecture.md section 14; production model in docs/production-deployment.md."
+
+worksheets:
+  - name: Dashboard
+    purpose: Operational KPIs and statistics (all formula output)
+    editors: []
+    viewers: [Everyone]
+    tables: [tblDashboard]
+    protected: all cells locked
+  - name: Scan
+    purpose: Barcode lookup, container/product detail, validation, allowed next actions; transaction staging
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblScanResults]
+    protected: lookup/detail area locked; entry cells editable
+  - name: Receiving
+    purpose: Guided receiving interface foundation; product picker, ID generation, data entry
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblReceiveStaging]
+    protected: instructions/IDs locked; entry cells editable
+  - name: Products
+    purpose: Product catalogue
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblProducts]
+    protected: header + formula columns locked
+  - name: Containers
+    purpose: Container master (barcode, lot, expiry, location, status)
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblContainers]
+    protected: header + formula columns locked
+  - name: Transactions
+    purpose: Append-only transaction history
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblTransactions]
+    protected: header locked; append-only convention
+  - name: Suppliers
+    purpose: Supplier catalogue
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblSuppliers]
+    protected: header locked
+  - name: Locations
+    purpose: Storage locations
+    editors: [Store operator]
+    viewers: [Everyone]
+    tables: [tblLocations]
+    protected: header locked
+  - name: Settings
+    purpose: Controlled lists + configurable constants (30/60/90-day expiry bands)
+    editors: [Administrator]
+    viewers: [Everyone]
+    tables: [tblSettings, tblStatusList, tblTransactionTypeList, tblExpiryClassList]
+    protected: all cells locked (read-mostly)
+
+tables:
+  - name: tblProducts
+    sheet: Products
+    primary_key: ProductID
+    alternate_keys: []
+    columns:
+      - { name: ProductID, type: text, mandatory: true, unique: true, note: "Pattern P######" }
+      - { name: ProductName, type: text, mandatory: true }
+      - { name: ProductType, type: list, mandatory: true, list: [Consumable, Chemical, Reagent] }
+      - { name: Category, type: list, mandatory: true, list: [General, "Pipette Tips", Tubes, Solvent, Reagent, Consumable] }
+      - { name: Manufacturer, type: text, mandatory: true }
+      - { name: ManufacturerCatalogueNumber, type: text, mandatory: true }
+      - { name: CASNumber, type: text, mandatory: false }
+      - { name: Concentration, type: text, mandatory: false }
+      - { name: Grade, type: text, mandatory: false }
+      - { name: StandardContainerDescription, type: text, mandatory: false }
+      - { name: SupplierID, type: fk, mandatory: true, references: tblSuppliers.SupplierID }
+      - { name: StorageRequirements, type: text, mandatory: false }
+      - { name: HazardClassification, type: text, mandatory: false }
+      - { name: SDSReference, type: text, mandatory: false }
+      - { name: MinimumContainerStock, type: integer, mandatory: true, default: 0 }
+      - { name: TargetContainerStock, type: integer, mandatory: true, default: 1 }
+      - { name: ReorderQuantity, type: integer, mandatory: true, default: 1 }
+      - { name: Active, type: boolean, mandatory: true, default: true }
+      - { name: Notes, type: text, mandatory: false }
+      - { name: HelperAvailableStock, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column (D-018): Status=Available AND (ExpiryDate blank OR >= TODAY()); protected, never manually edited" }
+      - { name: HelperStockClass, type: text, mandatory: false, calculated: true, authoritative: false, note: "Formula column: OutOfStock/Reorder/Low/OK; protected, never manually edited" }
+  - name: tblContainers
+    sheet: Containers
+    primary_key: ContainerID
+    alternate_keys: [Barcode]
+    columns:
+      - { name: ContainerID, type: text, mandatory: true, unique: true, note: "Pattern C######; immutable" }
+      - { name: Barcode, type: text, mandatory: true, unique: true, note: "Pattern \\d{7}; stored as text" }
+      - { name: ProductID, type: fk, mandatory: true, references: tblProducts.ProductID }
+      - { name: BatchLotNumber, type: text, mandatory: true, note: "Lot at container level (D-010)" }
+      - { name: ExpiryDate, type: date, mandatory: false }
+      - { name: RetestDate, type: date, mandatory: false, note: "Advisory only in v1" }
+      - { name: DateReceived, type: date, mandatory: true }
+      - { name: StorageLocationID, type: fk, mandatory: true, references: tblLocations.StorageLocationID }
+      - { name: Status, type: list, mandatory: true, default: Available, list_source: tblStatusList }
+      - { name: OpenedDate, type: date, mandatory: false, note: "Flag semantics (D-005)" }
+      - { name: DisposalDate, type: date, mandatory: false }
+      - { name: DisposalReason, type: list, mandatory: false, list: ["Used Up", Expired, Damaged, Missing, Other] }
+      - { name: Notes, type: text, mandatory: false }
+      - { name: HelperContainerNum, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column: numeric mirror of ContainerID for MAX(); protected" }
+      - { name: HelperBarcodeNum, type: integer, mandatory: false, calculated: true, authoritative: false, note: "Formula column: numeric mirror of Barcode for MAX(); protected" }
+  - name: tblTransactions
+    sheet: Transactions
+    primary_key: TransactionID
+    alternate_keys: []
+    append_only: true
+    columns:
+      - { name: TransactionID, type: text, mandatory: true, unique: true, note: "Pattern T########; immutable" }
+      - { name: Timestamp, type: datetime, mandatory: true }
+      - { name: Operator, type: text, mandatory: false, note: "Reserved; Windows username in VBA phase" }
+      - { name: Barcode, type: fk, mandatory: true, references: tblContainers.Barcode }
+      - { name: ContainerID, type: fk, mandatory: true, references: tblContainers.ContainerID }
+      - { name: ProductID, type: fk, mandatory: true, references: tblProducts.ProductID }
+      - { name: ProductName, type: text, mandatory: true, note: "Snapshot" }
+      - { name: TransactionType, type: list, mandatory: true, list_source: tblTransactionTypeList }
+      - { name: PreviousStatus, type: text, mandatory: true, list_source: tblStatusList, note: "(none) for Receive" }
+      - { name: NewStatus, type: text, mandatory: true, list_source: tblStatusList }
+      - { name: PreviousLocation, type: text, mandatory: true, note: "(none) for Receive" }
+      - { name: NewLocation, type: text, mandatory: true }
+      - { name: BatchLotNumber, type: text, mandatory: true, note: "Snapshot" }
+      - { name: Reason, type: list, mandatory: false, list: ["Used Up", Expired, Damaged, Missing, Correction, Other] }
+      - { name: Reference, type: text, mandatory: false }
+      - { name: Notes, type: text, mandatory: false }
+  - name: tblSuppliers
+    sheet: Suppliers
+    primary_key: SupplierID
+    alternate_keys: []
+    columns:
+      - { name: SupplierID, type: text, mandatory: true, unique: true, note: "Pattern S######" }
+      - { name: SupplierName, type: text, mandatory: true }
+      - { name: ContactName, type: text, mandatory: false }
+      - { name: Email, type: text, mandatory: false, note: "Contains @ when present" }
+      - { name: Phone, type: text, mandatory: false }
+      - { name: Website, type: text, mandatory: false }
+      - { name: Address, type: text, mandatory: false }
+      - { name: Notes, type: text, mandatory: false }
+  - name: tblLocations
+    sheet: Locations
+    primary_key: StorageLocationID
+    alternate_keys: []
+    columns:
+      - { name: StorageLocationID, type: text, mandatory: true, unique: true, note: "Pattern LOC####" }
+      - { name: LocationName, type: text, mandatory: true }
+      - { name: LocationType, type: list, mandatory: true, list: [Cabinet, Shelf, Fridge, Freezer, Room, Other] }
+      - { name: Description, type: text, mandatory: false }
+      - { name: Active, type: boolean, mandatory: true, default: true }
+  - name: tblSettings
+    sheet: Settings
+    primary_key: SettingKey
+    alternate_keys: []
+    columns:
+      - { name: SettingKey, type: text, mandatory: true, unique: true }
+      - { name: SettingValue, type: text, mandatory: true }
+      - { name: Description, type: text, mandatory: false }
+    settings_keys:
+      - ExpiryWarningDays30
+      - ExpiryWarningDays60
+      - ExpiryWarningDays90
+      - DefaultLocationID
+      - DefaultStatusNewContainers
+      - ScannerEnterSuffix
+      - WorkbookVersion
+  - name: tblStatusList
+    sheet: Settings
+    primary_key: StatusValue
+    alternate_keys: []
+    columns:
+      - { name: StatusValue, type: text, mandatory: true, unique: true }
+      - { name: Label, type: text, mandatory: true }
+  - name: tblTransactionTypeList
+    sheet: Settings
+    primary_key: TransactionTypeValue
+    alternate_keys: []
+    columns:
+      - { name: TransactionTypeValue, type: text, mandatory: true, unique: true }
+      - { name: Label, type: text, mandatory: true }
+  - name: tblExpiryClassList
+    sheet: Settings
+    primary_key: ExpiryClassValue
+    alternate_keys: []
+    columns:
+      - { name: ExpiryClassValue, type: text, mandatory: true, unique: true }
+      - { name: Label, type: text, mandatory: true }
+  - name: tblScanResults
+    sheet: Scan
+    primary_key: Barcode
+    alternate_keys: []
+    authoritative: false
+    note: UI-only formula staging; never a source of truth (D-014)
+    columns:
+      - { name: Barcode, type: text, mandatory: true, unique: true }
+      - { name: ContainerID, type: text, mandatory: false }
+      - { name: ProductID, type: text, mandatory: false }
+      - { name: ProductName, type: text, mandatory: false }
+      - { name: BatchLotNumber, type: text, mandatory: false }
+      - { name: ExpiryDate, type: date, mandatory: false }
+      - { name: StorageLocationID, type: text, mandatory: false }
+      - { name: LocationName, type: text, mandatory: false }
+      - { name: Status, type: text, mandatory: false }
+      - { name: OpenedDate, type: date, mandatory: false }
+      - { name: ExpiryClass, type: text, mandatory: false }
+      - { name: DuplicateFlag, type: text, mandatory: false }
+      - { name: LookupState, type: text, mandatory: false }
+  - name: tblReceiveStaging
+    sheet: Receiving
+    primary_key: ProductID
+    alternate_keys: []
+    authoritative: false
+    note: UI-only formula staging; never a source of truth (D-014)
+    columns:
+      - { name: ProductID, type: text, mandatory: true }
+      - { name: ProductName, type: text, mandatory: false }
+      - { name: NextContainerID, type: text, mandatory: false }
+      - { name: NextBarcode, type: text, mandatory: false }
+      - { name: BatchLotNumber, type: text, mandatory: false }
+      - { name: ExpiryDate, type: date, mandatory: false }
+      - { name: RetestDate, type: date, mandatory: false }
+      - { name: StorageLocationID, type: text, mandatory: false }
+      - { name: Status, type: text, mandatory: false }
+      - { name: Quantity, type: integer, mandatory: false }
+      - { name: ValidationMessage, type: text, mandatory: false }
+      - { name: ReadinessState, type: text, mandatory: false }
+
+named_ranges:
+  - { name: rngScanInput, sheet: Scan, range: B7 }
+  - { name: rngScanStatusMessage, sheet: Scan, range: B9 }
+  - { name: rngScanResultCard, sheet: Scan, range: "D4:K34" }
+  - { name: rngReceiveProductID, sheet: Receiving, range: B7 }
+  - { name: rngReceiveNextContainerID, sheet: Receiving, range: B9 }
+  - { name: rngReceiveNextBarcode, sheet: Receiving, range: B10 }
+  - { name: rngReceiveLot, sheet: Receiving, range: B12 }
+  - { name: rngReceiveExpiry, sheet: Receiving, range: B13 }
+  - { name: rngReceiveRetest, sheet: Receiving, range: B14 }
+  - { name: rngReceiveLocation, sheet: Receiving, range: B15 }
+  - { name: rngReceiveQuantity, sheet: Receiving, range: B16 }
+  - { name: rngReceiveStatusMessage, sheet: Receiving, range: B19 }
+  - { name: lstProductType, sheet: Settings, range: "H4:H6" }
+  - { name: lstCategory, sheet: Settings, range: "H8:H13" }
+  - { name: lstLocationType, sheet: Settings, range: "H15:H20" }
+  - { name: lstDisposalReason, sheet: Settings, range: "H22:H26" }
+  - { name: lstTransactionReason, sheet: Settings, range: "H28:H33" }
+  - { name: lstBool, sheet: Settings, range: "H35:H36" }
+
 controlled_values:
-  product_types: []
-  container_statuses: []
-  transaction_types: []
+  product_types: [Consumable, Chemical, Reagent]
+  categories: [General, "Pipette Tips", Tubes, Solvent, Reagent, Consumable]
+  container_statuses: [Available, InUse, Expired, Damaged, Disposed, Missing]
+  transaction_types: [Receive, TakeOpen, Return, Transfer, Dispose, MarkExpired, MarkDamaged, MarkMissing, Adjustment]
+  expiry_classes: [Expired, ExpiringSoon, Valid, NoExpiry, Invalid]
+  location_types: [Cabinet, Shelf, Fridge, Freezer, Room, Other]
+  disposal_reasons: ["Used Up", Expired, Damaged, Missing, Other]
+  transaction_reasons: ["Used Up", Expired, Damaged, Missing, Correction, Other]
+  booleans: ["TRUE", "FALSE"]
   message_classes:
     - BlockingError
     - ConfirmationWarning
     - Information
-state_transitions: []
-formulas: []
-protection: []
+
+state_transitions:
+  - note: "Full matrix in docs/status-transition-matrix.md; values ALLOW / CONFIRM / BLOCK / N/A"
+  - { from: null, transaction: Receive, to: Available, class: ALLOW }
+  - { from: Available, transaction: TakeOpen, to: InUse, class: ALLOW }
+  - { from: Available, transaction: Transfer, to: Available, class: ALLOW }
+  - { from: Available, transaction: Dispose, to: Disposed, class: CONFIRM }
+  - { from: Available, transaction: MarkExpired, to: Expired, class: CONFIRM }
+  - { from: Available, transaction: MarkDamaged, to: Damaged, class: CONFIRM }
+  - { from: Available, transaction: MarkMissing, to: Missing, class: CONFIRM }
+  - { from: InUse, transaction: Return, to: Available, class: ALLOW }
+  - { from: InUse, transaction: Dispose, to: Disposed, class: CONFIRM }
+  - { from: InUse, transaction: MarkExpired, to: Expired, class: CONFIRM }
+  - { from: InUse, transaction: MarkDamaged, to: Damaged, class: CONFIRM }
+  - { from: InUse, transaction: MarkMissing, to: Missing, class: CONFIRM }
+  - { from: Expired, transaction: Dispose, to: Disposed, class: ALLOW }
+  - { from: Expired, transaction: Transfer, to: Expired, class: ALLOW }
+  - { from: Damaged, transaction: Dispose, to: Disposed, class: ALLOW }
+  - { from: Damaged, transaction: Transfer, to: Damaged, class: ALLOW }
+  - { from: Missing, transaction: Dispose, to: Disposed, class: CONFIRM }
+  - { from: any, transaction: Adjustment, to: any, class: CONFIRM }
+
+formulas:
+  - { id: F-01, name: AvailableStock, formula: 'COUNTIFS(tblContainers[ProductID],<pid>,tblContainers[Status],"Available") - COUNTIFS(tblContainers[ProductID],<pid>,tblContainers[Status],"Available",tblContainers[ExpiryDate],"<"&TODAY())', compatibility: "2021/2024/365", note: "D-018: usable = Status=Available AND (ExpiryDate blank OR >= TODAY()); expired-by-date excluded without mutating Status" }
+  - { id: F-02, name: ReorderClass, formula: 'IF(Available=0,"OutOfStock",IF(Available<Min,"Reorder",IF(Available<Target,"Low","OK")))', compatibility: "2021/2024/365" }
+  - { id: F-03, name: ExpiryClass, formula: 'IF(ExpiryDate="","NoExpiry",IF(ExpiryDate<TODAY(),"Expired",IF(ExpiryDate<=TODAY()+D30,"ExpiringSoon",...)))', compatibility: "2021/2024/365", note: "bands from tblSettings" }
+  - { id: F-04, name: DuplicateBarcode, formula: 'COUNTIF(tblContainers[Barcode],<bc>)>1', compatibility: "2021/2024/365" }
+  - { id: F-05, name: LookupState, formula: 'IF(<bc>="","EMPTY",IF(ISNA(MATCH(<bc>,tblContainers[Barcode],0)),"UNKNOWN",IF(COUNTIF(...)>1,"DUPLICATE","FOUND")))', compatibility: "2021/2024/365" }
+  - { id: F-06, name: NextContainerID, formula: 'TEXT(MAX(tblContainers[HelperContainerNum])+1,"C000000")', compatibility: "2021/2024/365", note: "uses protected helper column" }
+  - { id: F-07, name: NextBarcode, formula: 'TEXT(MAX(tblContainers[HelperBarcodeNum])+1,"0000000")', compatibility: "2021/2024/365", note: "uses protected helper column" }
+  - { id: F-08, name: DashboardTotals, formula: 'COUNTIF/COUNTIFS against source tables; total available uses D-018 semantics', compatibility: "2021/2024/365" }
+  - { id: F-09, name: DashboardFrequentlyUsed, formula: 'COUNTIFS(tblTransactions[ProductID],<pid>,tblTransactions[TransactionType],"TakeOpen")', compatibility: "2021/2024/365", note: "per-product TakeOpen count" }
+  - { id: F-10, name: DashboardByLocation, formula: 'COUNTIFS(tblContainers[StorageLocationID],<loc>,tblContainers[Status],"Available") - COUNTIFS(...ExpiryDate,"<"&TODAY())', compatibility: "2021/2024/365", note: "usable available per location (D-018)" }
+
+protection:
+  - { scope: workbook, action: protect_structure, password: "", note: "prevent sheet rename/delete" }
+  - { scope: worksheet, action: protect, password: "", locked: "formula/header/instruction cells", unlocked: "entry cells", note: "deterrent not security (D-015)" }
+  - { scope: tblTransactions, action: append_only_convention, note: "no delete; corrections via Adjustment" }
+
+barcode_rules:
+  - format: "\\d{7}"
+  - storage: text
+  - uniqueness: one Container per Barcode (invariant 3)
+  - duplicate_detection: formula COUNTIF > 1 (Scan + Containers)
+  - symbology_recommendation: Code 128
+  - scanner: USB keyboard wedge with Enter suffix
+  - label_source: internal generated labels required; supplier codes cannot identify identical containers
+
 notes:
-  - Populate during architecture and macro-free construction.
-  - Do not set vba_authorized to true before explicit owner approval.
+  - "Contract status: FROZEN (owner-approved architecture freeze, 2026-08-17). VBA is authorized."
+  - "The application architecture (worksheets, Tables, columns, named ranges, controlled lists, statuses, transaction types, barcode/ID formats, stock/expiry semantics, transitions, Scan/Receiving interface, formulas, append-only audit model) is frozen."
+  - "The final storage/deployment option is NOT frozen: deployment_status=proposed, deployment_option=unresolved (D-013 Proposed)."
+  - "Any post-freeze change to a frozen member requires the documented change-control process (docs/workbook-contract.md)."
+  - "All formulas Excel 2021/2024-compatible; 365-only alternatives documented in docs/architecture.md."
+  - "Only synthetic fixtures are committed; real laboratory data is excluded by policy."

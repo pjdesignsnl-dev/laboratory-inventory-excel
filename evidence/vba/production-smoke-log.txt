@@ -1,0 +1,6 @@
+opened with events enabled
+statusbar=[Laboratory Inventory ready.]
+receiving-instructions=[]
+scan-msg=[UNKNOWN BARCODE - receive this container first.]
+scan-input-kept=[1]
+dashboard-error-cells=0

@@ -1,0 +1,6 @@
+﻿ExpiryClassValue,Label
+Expired,Date < today
+ExpiringSoon,Within warning band (30/60/90)
+Valid,Beyond warning band
+NoExpiry,No expiry date set
+Invalid,Date error

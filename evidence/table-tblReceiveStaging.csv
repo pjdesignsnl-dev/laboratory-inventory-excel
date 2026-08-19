@@ -1,0 +1,2 @@
+﻿ProductID,ProductName,NextContainerID,NextBarcode,BatchLotNumber,ExpiryDate,RetestDate,StorageLocationID,Status,Quantity,ValidationMessage,ReadinessState
+"=IF($D$7="""","""",$D$7)","=IF($D$7="""","""",B8)","=IF($D$7="""","""",D9)","=IF($D$7="""","""",D10)","=IF($D$7="""","""",D12)","=IF($D$7="""","""",D13)","=IF($D$7="""","""",D14)","=IF($D$7="""","""",D15)","=IF($D$7="""","""",D17)","=IF($D$7="""","""",D16)","=IF($D$7="""","""",D19)","=IF($D$7="""","""",D19)"

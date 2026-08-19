@@ -1,0 +1,4 @@
+﻿SupplierID,SupplierName,ContactName,Email,Phone,Website,Address,Notes
+S000001,LabSupply Co.,A. Rivera,orders@labsupply.example,+1 555 0101,labsupply.example,"123 Industrial Pkwy, Springfield",Primary general supplier
+S000002,ChemCore Ltd.,B. Novak,sales@chemcore.example,+1 555 0102,chemcore.example,"45 Analytical Way, Brookfield",Chemicals/reagents
+S000003,TipTech GmbH,C. Meier,info@tiptech.example,+49 30 555 0103,tiptech.example,"9 Laborenstrasse, Berlin",Pipette tips and plastics

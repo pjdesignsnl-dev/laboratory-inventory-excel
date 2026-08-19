@@ -1,0 +1,7 @@
+opened candidate
+Test_ContractCheck executed (single-shot)
+Test_ContractDrift executed (single-shot)
+--- test-hooks-output.txt ---
+contract:OK diag=[]
+drift:before=FAIL after=OK
+drift-diag=[]

@@ -1,0 +1,6 @@
+opened with events enabled
+typed 0000001 into D7
+status-msg=[FOUND - scan details shown. Choose an action to commit.]
+staging-rows=1
+staging-barcode=[0000001] state=[FOUND]
+staging-containerid=[C000001]

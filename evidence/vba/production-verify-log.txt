@@ -1,0 +1,11 @@
+opened with events enabled
+statusbar=[Laboratory Inventory ready.]
+tblProducts-rows=0
+tblContainers-rows=0
+tblTransactions-rows=0
+tblSuppliers-rows=0
+tblLocations-rows=0
+tblStatusList-rows=6
+tblTransactionTypeList-rows=9
+scan-unknown-msg=[UNKNOWN BARCODE - receive this container first.]
+scan-responds=True

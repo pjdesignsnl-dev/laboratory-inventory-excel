@@ -1,0 +1,17 @@
+copied production binary to smoke copy
+opened smoke copy
+imported throwaway driver
+Drive_ReceiveOne done
+Drive_TakeOpenReturn done
+OUT: driver-start
+OUT: import-minimal-reference:OK
+OUT: receive-one=[C000001]
+OUT: receive-one-ok=True
+OUT: takeopen=[OK: TakeOpen committed (T00000002).]
+OUT: return=[OK: Return committed (T00000003).]
+OUT: txn-count=3
+OUT: status=Available
+OUT: driver-done
+saved and closed smoke copy
+reopen-containers=1
+AccessVBOM restored to 0

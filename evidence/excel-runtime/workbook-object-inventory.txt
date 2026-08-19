@@ -1,0 +1,16 @@
+=== Workbook object inventory (Microsoft Excel COM) ===
+Workbook: C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+Excel: 16.0 build 20228
+
+WORKSHEETS:
+  <sheet 1 read failed>
+  <sheet 2 read failed>
+  <sheet 3 read failed>
+  <sheet 4 read failed>
+  <sheet 5 read failed>
+  <sheet 6 read failed>
+  <sheet 7 read failed>
+  <sheet 8 read failed>
+  <sheet 9 read failed>
+
+WORKBOOK NAMED RANGES:

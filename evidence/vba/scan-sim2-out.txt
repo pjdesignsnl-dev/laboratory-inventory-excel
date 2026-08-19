@@ -1,0 +1,5 @@
+opened with events enabled
+unknown-scan=[UNKNOWN BARCODE - receive this container first.|]
+invalid-scan=[Invalid barcode format (expected 7 digits).|]
+empty-scan=[UNKNOWN BARCODE - receive this container first.|]
+expired-avail-scan=[FOUND - scan details shown. Choose an action to commit.|C000021]
