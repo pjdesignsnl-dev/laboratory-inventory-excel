@@ -29,14 +29,16 @@ permissions** require owner provisioning of the network share.
 | Backup/recovery drill | PASS (backup → SHA recorded → restore → open/contract/formulas/macros/scan → master unchanged) |
 | Read-only access acceptance | PASS (macro-free report, no write path, protected, viewer content OK) |
 | Production-location smoke (engine, on a copy) | PASS (import → ReceiveOne → TakeOpen → Return → txn append → reopen persists) |
+| Deployment-location smoke (from simulated D-023 share location) | PASS (open→contract ready→operator flow→backup→save/reopen→second writer NOT permitted→committed master unchanged) |
 | Production protection/UI review | PASS (test hooks excluded from production binary; inert fault module documented) |
 | Final security/integrity checks | PASS (see below) |
 | Final production regression | PASS (full matrix; fault injection on candidate copy only, never the master) |
 
 ## Final security / integrity checks
 
-- AccessVBOM = 0 ✓ (verified final state; re-verified after the last build
-  temporarily set it to 1 — restored to 0 and the production workbook
+- AccessVBOM = 0 ✓ (verified final state; during build/smoke automation it is
+  temporarily set to 1 for module import and restored to 0 in each script's
+  cleanup — final state re-verified 0 and the production workbook
   re-verified to open/operate with it disabled)
 - VBA project compiles (production binary compiles on save) ✓
 - Workbook opens without repair ✓
