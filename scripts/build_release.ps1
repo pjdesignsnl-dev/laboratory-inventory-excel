@@ -1,4 +1,4 @@
-﻿# Final release build: produce workbook/LabInventory_v1.0.0.xlsm from the
+# Final release build: produce workbook/LabInventory_v1.0.0.xlsm from the
 # hash-free macro-free base + all source-controlled modules + document-module
 # code, compile via save, export every component back for verification.
 $ErrorActionPreference = "Stop"
@@ -35,7 +35,7 @@ try {
         "modBarcodeLookup.bas", "modValidation.bas", "modTransactions.bas",
         "modContainers.bas", "modReceiving.bas", "modScanInterface.bas",
         "modBackup.bas", "modErrorHandling.bas", "modCode128.bas",
-        "modTestHooks.bas"
+        "modFaultInjection.bas", "modTestHooks.bas"
     )
     foreach ($mf in $modFiles) {
         $p = Join-Path $ModDir $mf

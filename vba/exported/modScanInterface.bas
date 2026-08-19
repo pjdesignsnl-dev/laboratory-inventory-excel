@@ -10,7 +10,6 @@ Option Explicit
 ' ============================================================================
 
 Private m_busy As Boolean
-Private m_lastOperationToken As String
 
 Public Property Get IsBusy() As Boolean
     IsBusy = m_busy
@@ -158,6 +157,10 @@ Public Sub CommitAction(ByVal txnType As String, Optional ByVal newLocation As S
     Dim tid As String
     tid = modTransactions.AppendTransaction(snap)
     modContainers.ApplyStateChange rowNum, newStatus, newLoc, setOpened, setDisposed, dReason
+
+    ' BOUNDARY 5: after container mutation, before successful completion.
+    ' Caller rollback must restore the container and remove the transaction.
+    Call modFaultInjection.FaultAt(modFaultInjection.FAULT_AFTER_CONTAINER_MUTATION_BEFORE_COMPLETE)
 
     ' post-conditions
     If Not modTransactions.VerifyAppended(tid) Then Err.Raise vbObjectError + 2501, "modScanInterface", "Transaction post-condition failed"

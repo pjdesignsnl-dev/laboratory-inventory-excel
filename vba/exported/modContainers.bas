@@ -144,6 +144,10 @@ Public Sub ApplyStateChange(ByVal rowNum As Long, _
     Set ws = ThisWorkbook.Worksheets(WS_CONTAINERS)
     modUtilities.UnprotectSheet ws
 
+    ' BOUNDARY 3: before container mutation (transaction already appended;
+    ' caller rollback must restore container + remove the transaction row)
+    Call modFaultInjection.FaultAt(modFaultInjection.FAULT_BEFORE_CONTAINER_MUTATION)
+
     SetCellValue lo, rowNum, COL_STATUS, newStatus
     If Len(newLocation) > 0 Then
         SetCellValue lo, rowNum, COL_STORAGE_LOCATION_ID, newLocation
@@ -160,6 +164,10 @@ Public Sub ApplyStateChange(ByVal rowNum As Long, _
         SetCellValue lo, rowNum, COL_DISPOSAL_DATE, modUtilities.GetNow()
         SetCellValue lo, rowNum, COL_DISPOSAL_REASON, disposalReason
     End If
+
+    ' BOUNDARY 4: during/after partial container mutation (all fields written;
+    ' caller rollback must restore the container to its exact pre-state)
+    Call modFaultInjection.FaultAt(modFaultInjection.FAULT_DURING_CONTAINER_MUTATION)
 
     modUtilities.ProtectSheet ws
 End Sub
@@ -188,6 +196,11 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
                              ByVal retestDate As Variant, ByVal locationID As String, _
                              ByVal notes As String) As String
     ' Creates a new container row (Status = Available). Returns ContainerID.
+    ' Self-cleaning: if a fault fires after the row is allocated, the row
+    ' created by THIS uncommitted call is removed before raising, so no
+    ' partial container can survive even if the caller has no handle.
+    On Error GoTo addFail
+
     Dim lo As ListObject
     Set lo = ThisWorkbook.Worksheets(WS_CONTAINERS).ListObjects(TBL_CONTAINERS)
     Dim ws As Worksheet
@@ -216,8 +229,35 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_DISPOSAL_REASON)).Value2 = Empty
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_NOTES)).Value2 = notes
 
+    ' BOUNDARY 4 (receive variant): during/after partial container creation.
+    ' Self-clean: delete the row we just created, then raise.
+    If modFaultInjection.FaultAt(modFaultInjection.FAULT_DURING_CONTAINER_MUTATION) Then
+        On Error Resume Next
+        lo.ListRows(lo.ListRows.count).Delete
+        On Error GoTo addFail
+        modUtilities.ProtectSheet ws
+        Err.Raise vbObjectError + 2303, "modContainers", _
+                  "INJECTED FAULT during container creation (row removed)"
+    End If
+
     modUtilities.ProtectSheet ws
     AddContainer = cid
+    Exit Function
+
+addFail:
+    On Error Resume Next
+    If Not lo Is Nothing Then
+        If Not ws Is Nothing Then modUtilities.UnprotectSheet ws
+        If Len(cid) > 0 Then
+            Dim rowIdx As Long
+            rowIdx = modBarcodeLookup.FindContainerRowByID(cid)
+            If rowIdx > 0 Then lo.ListRows(rowIdx).Delete
+        End If
+        If Not ws Is Nothing Then modUtilities.ProtectSheet ws
+    End If
+    On Error GoTo 0
+    Err.Raise vbObjectError + 2304, "modContainers", _
+              "Container creation failed and was rolled back: " & Err.Description
 End Function
 
 ' ------------------------------------------------------------------ helpers

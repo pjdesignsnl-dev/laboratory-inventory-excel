@@ -48,6 +48,7 @@ try {
         "modBackup.bas",
         "modErrorHandling.bas",
         "modCode128.bas",
+        "modFaultInjection.bas",
         "modTestHooks.bas"
     )
     foreach ($mf in $modFiles) {

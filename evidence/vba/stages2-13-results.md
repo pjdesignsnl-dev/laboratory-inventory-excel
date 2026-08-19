@@ -89,8 +89,22 @@ Lookup is fast at scale; batch receiving is dominated by Excel table-row formula
 - Formula/business-rule: 55/55 PASS.
 - Real-Excel runtime acceptance: 29/29 PASS.
 
-## Remaining (next phases)
+## Items previously listed as "next phases" — SUBSEQUENTLY COMPLETED
 
-- Worksheet event wiring for Scan/Receiving document modules (code injected; needs event-driven test).
-- Code 128 label rendering integration and scanner acceptance (physical scanner not available — documented as pending).
-- Full test matrix expansion, final candidate release build, release manifest.
+The items below were listed as remaining work in an earlier draft of this file.
+They have since been **completed**; this note is kept so the historical record
+remains truthful. See the sections above and `evidence/vba/atomicity-fault-injection.md`,
+`evidence/vba/scan-sim-*.txt`, and `releases/LabInventory_v1.0.0-RELEASE.md` for evidence.
+
+- ~~Worksheet event wiring for Scan/Receiving document modules (code injected; needs event-driven test).~~
+  **Completed:** Scan `Worksheet_Change` → `modScanInterface` dispatch validated by
+  keyboard-wedge scanner simulation with events enabled (`scripts/test_scan_simulation.ps1`).
+- ~~Code 128 label rendering integration and scanner acceptance (physical scanner not available — documented as pending).~~
+  **Completed (code):** `modCode128` pattern generation tested (`code128:OK len=10`).
+  Physical-scanner acceptance remains explicitly unresolved (no hardware in the test
+  environment) — see release manifest Known limitations.
+- ~~Full test matrix expansion, final candidate release build, release manifest.~~
+  **Completed:** full 9-transaction matrix, D-018, dashboard reconciliation, atomicity
+  under injected failures, ReceiveN batch rollback, performance scale test; final
+  release build `workbook/LabInventory_v1.0.0.xlsm` and manifest
+  `releases/LabInventory_v1.0.0-RELEASE.md`.
