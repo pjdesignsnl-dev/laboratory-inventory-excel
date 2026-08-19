@@ -1,0 +1,2 @@
+ProductID,ProductName,ProductType,Category,Manufacturer,ManufacturerCatalogueNumber,CASNumber,Concentration,Grade,StandardContainerDescription,SupplierID,StorageRequirements,HazardClassification,SDSReference,MinimumContainerStock,TargetContainerStock,ReorderQuantity,Active,Notes
+P000001,,,,,,,,,,,S000001,,,,,,,,TRUE,

@@ -1,13 +1,15 @@
 # Release Manifest — Laboratory Inventory Excel v1.0.0
 
 **Release status:** Production candidate — software acceptance passes with no
-known defects; production-hardening gates are being finalized. Final
-production-approved status depends on physical-scanner acceptance and the
-finalized deployment (D-023 Accepted).
+known defects. Deployment is finalized (D-023 Accepted); the remaining open
+production gate(s): **physical barcode-scanner acceptance**, **physical label
+print**, **deployment share provisioning**, and **initial inventory import**
+(owner/hardware dependencies — see Known limitations).
 
-> Per project policy, this does NOT claim "100% correct". See Known
-> limitations for the physical-scanner acceptance status and the finalized
-> deployment model.
+> Per project policy, this does NOT claim "100% correct", and it is not yet
+> "production ready" because physical scanner acceptance has not been
+> performed (no scanner available). Once the open gates pass, update this
+> status to "Production approved".
 
 ---
 
@@ -15,19 +17,19 @@ finalized deployment (D-023 Accepted).
 
 | Artifact | Path | SHA-256 |
 |---|---|---|
-| Operational workbook (macro-enabled) | `workbook/LabInventory_v1.0.0.xlsm` | `71D8739F0991BC074EB4489CE4A97D4891C7034640D03B2AACEB8875FC221F4E` |
-| Production operational workbook (clean, no fixtures) | `workbook/LabInventory_v1.0.0-production.xlsm` | (final, recorded at production release) |
-| Read-only report workbook (macro-free) | `workbook/LabInventory_v1.0.0-readonly-report.xlsx` | derived from frozen base (below) |
+| Operational workbook (macro-enabled, full test suite) | `workbook/LabInventory_v1.0.0.xlsm` | `DF26793793CA7B05C6217A674E4D9D26441EE07D7B0E1133B2B01CBFFB32692F` |
+| **Production operational workbook** (clean, no fixtures, no test hooks) | `workbook/LabInventory_v1.0.0-production.xlsm` | `A4B0A2B1814BAD06DAB5F233CF47873E37FE3AA787C6539DD60AF6597F0300E1` |
+| **Read-only report workbook** (macro-free, clean) | `workbook/LabInventory_v1.0.0-readonly-report.xlsx` | `DF18E9D782D5B581C17A789B831C8FC26FFC423DE0A5A09308DDC81A4313B601` |
 | Macro-free base (frozen, D-022 revised) | `workbook/LabInventory_v0.1.xlsx` | `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5` |
-| VBA source (modules + document modules + release export) | `vba/modules/*.bas`, `vba/docmodules/*.cls`, `vba/exported-release/` | source-controlled |
+| VBA source (modules + document modules + exports) | `vba/modules/*.bas`, `vba/docmodules/*.cls`, `vba/exported-release/`, `vba/exported-production/` | source-controlled |
 
 ## 2. Version identity
 
 | Item | Value |
 |---|---|
 | Contract version | 1.0.0 (FROZEN FOR VBA) |
-| Contract schema | `schema/workbook-contract.yaml` — `status: frozen`, `vba_authorized: true` |
-| Application version | 1.0.0 (candidate release) |
+| Contract schema | `schema/workbook-contract.yaml` — `status: frozen`, `vba_authorized: true`; deployment `accepted` (D-023) |
+| Application version | 1.0.0 (production candidate) |
 | Excel version tested | Microsoft Excel 16.0.20228.20190 (x64), Windows |
 | Excel runtime acceptance (base) | 29/29 PASS (post D-022) |
 | Structural (non-VBA) | 51/51 PASS |
@@ -37,7 +39,11 @@ finalized deployment (D-023 Accepted).
 | Fault-injection atomicity (`Test_FaultInjection`) | all PASS (5 scan-commit + 5 receive boundaries + ReceiveN batch rollback) |
 | Scanner simulation (keyboard-wedge events) | PASS |
 | Save/close/reopen persistence | PASS |
-| Performance smoke (`Test_PerfSmoke`) | PASS (receive 20 in 1.18 s; deep lookup <1 ms; 20 lookups 8 ms) |
+| Backup/restore drill | PASS (evidence/production/backup-restore-test.md) |
+| Read-only report acceptance | PASS (macro-free, protected, no write path) |
+| Production engine smoke (import → receive → TakeOpen → Return → persist) | PASS |
+| Performance smoke (`Test_PerfSmoke`) | PASS (receive 20 in ~1.3 s; deep lookup <1 ms) |
+| Production binary verify (empty tables, lists 6/9, contract OK, AccessVBOM 0) | PASS |
 
 ## 3. Git identity
 
@@ -55,8 +61,9 @@ finalized deployment (D-023 Accepted).
 | **Fault-injection acceptance** | `3b9c4d2` | atomicity under injected failures (modFaultInjection) |
 | Release v1.0.0 (rebuilt) | `c065112` | release rebuild + manifest update (new SHA `71D8739F…`) |
 | AccessVBOM restore | `adabb53` | AccessVBOM=0; release verified with it disabled |
-| **Production-final source HEAD** | `adabb53ee3a` | exact production source tree (this manifest's identity) |
-| **Production release commit** | *(recorded after Phase 15)* | production artifacts + docs + manifest status |
+| **Production source HEAD** | `adabb53ee3a` | exact production source tree (pre-production-prep) |
+| Production prep | `7adfa4e` | D-023 deployment decision, clean production workbook, text-format fix, engine smoke |
+| **Production release commit** | *(final, recorded after Phase 15 push)* | production artifacts + docs + manifest |
 
 ## 4. Workbook contract (frozen members)
 
@@ -115,21 +122,36 @@ finalized deployment (D-023 Accepted).
 ## 7. Security / macro settings (AccessVBOM)
 
 - **Before development:** `HKCU\Software\Microsoft\Office\16.0\Excel\Security\AccessVBOM` was **unset** (0 = default: programmatic VBA project access disabled).
-- **During development (module import/export automation):** set to `1`.
-- **Restore status (2026-08-19):** after all VBA import/export work finished, restored to **0/unset** and the final `.xlsm` was re-verified to open and operate normally with AccessVBOM disabled (see `evidence/vba/release-acceptance-log.txt`).
-- **Macro security:** do NOT instruct users to "enable all macros". Recommended: Trusted Location for the operational file, or digitally sign the VBA project. Physical-scanner and deployment decisions remain with the owner.
+- **During development (module import/export automation):** set to `1` (temporarily, per build).
+- **Restore status (2026-08-19):** restored to **0/unset** and the final `.xlsm` verified to open and operate normally with AccessVBOM disabled (see `evidence/vba/release-acceptance-log.txt`). **Production requires AccessVBOM = 0.**
+- **Macro trust model (production):** no code-signing certificate is available in the environment (checked 2026-08-19), so a **controlled Trusted Location scoped to the production share folder** is the documented macro-trust mechanism (see `docs/scanner-configuration.md`). Users are NOT told to "enable all macros" or lower Trust Center security. No self-signed fake trust is presented as production-grade.
+- **Mark-of-the-Web:** files transferred from the repo/downloads may be flagged; verify SHA-256 against this manifest and unblock (Properties → Unblock) or open from the Trusted Location. The trusted-location master on the writer PC is not subject to MOTW blocking.
 
-## 8. Known limitations
+## 8. Deployment (D-023, Accepted — supersedes D-013 Proposed)
 
-1. **Physical barcode scanner not available** in the test environment. Scanner behavior was validated by keyboard-wedge simulation (typing barcode + Enter into Scan!D7 with events enabled). A real Code 128 scanner must be accepted on-site.
-2. **Deployment option unresolved** (D-013 Proposed): `writer_model: single_writer`, `reader_model: read_only_elsewhere`, `deployment_option: unresolved`. The read-only report workbook covers the read-only viewer case.
-3. **Remaining-volume / piece tracking** intentionally out of scope (v1).
-4. **Batch receive throughput** ~117 ms/row in real Excel (dominated by Excel table formula auto-fill); acceptable for lab receiving. Single scans are instant (~6–12 ms).
-5. **Code 128 labels**: the module generates the Code 128B pattern string; a matching TrueType Code 128 font is required on the printer machine (printer-independent by design).
-6. **Undo**: transactions are append-only and container state is mutated by VBA; Excel Undo does not reverse a committed transaction (by design; corrections use Adjustment).
+- **Option A/B:** authoritative `LabInventory_v1.0.0-production.xlsm` on a private network share (`\\<LAB-SERVER>\Inventory\`); **only the dedicated writing PC** has write permission; all other PCs use the macro-free read-only report.
+- Writer model: single writer; reader model: read-only elsewhere; **no multi-user editing**.
+- File locking: Excel lock on the SMB master + NTFS write-only-for-writer.
+- Versioning: timestamped backups (see `docs/backup-recovery.md`) + Git.
+- Backup: `LABINV_BACKUP_FOLDER` outside the master share; retention daily 14 / weekly 8 / monthly 12.
+- Offline/network-loss: master opens only from the share; no offline local copy (split-brain avoided); report is a snapshot.
+- Read-only report refresh: regenerated by the writer PC after operations.
+- Option C (OneDrive/SharePoint) rejected: no M365 business tenant/SharePoint provisioned. Option D (Google Drive) rejected for the writer path (backup/archive only).
+- **Owner action required:** provision the share with the permission model, then run the go-live import.
 
-## 9. Unresolved / next steps
+## 9. Known limitations / open gates
 
-- On-site physical scanner acceptance (model/config to record in the manifest when available).
-- Owner decision on deployment option (single-file vs. multi-user), then finalize the deployment recommendation.
-- Optional: digital signature for the VBA project before production distribution.
+1. **Physical barcode scanner acceptance — OPEN (hardware not available).** Scanner behavior validated by keyboard-wedge simulation only; a real Code 128 scanner must be accepted on-site (`evidence/production/scanner-acceptance.md`).
+2. **Physical label print — OPEN.** Layout validated in PDF (`evidence/production/label-layout-sample.pdf`); a licensed Code 128 TrueType font + label printer are required on-site.
+3. **Deployment share provisioning — OPEN (owner).** `\\<LAB-SERVER>\Inventory\` + permissions per D-023.
+4. **Initial inventory import — OPEN (owner data).** Templates + QA report in `templates/`; go-live timestamp starts the audit trail; no audit events are manufactured.
+5. Remaining-volume / piece tracking intentionally out of scope (v1).
+6. Batch receive throughput ~117 ms/row (Excel table formula auto-fill); single scans instant (~6–12 ms).
+7. Undo: committed transactions are not undoable by Excel Undo (by design; corrections use Adjustment).
+
+## 10. Unresolved / next steps
+
+- Run the on-site scanner + label-print acceptance; update `evidence/production/scanner-acceptance.md` and this manifest.
+- Provision the deployment share (D-023) and run the initial import (`docs/initial-data-import.md`).
+- Optional later: digital signature for the VBA project if a suitable certificate becomes available.
+- When all open gates pass, set this manifest's status to **Production approved** and report the production-ready language.

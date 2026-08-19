@@ -1,0 +1,2 @@
+ContainerID,Barcode,ProductID,BatchLotNumber,ExpiryDate,RetestDate,DateReceived,StorageLocationID,Status,OpenedDate,DisposalDate,DisposalReason,Notes
+C000001,0000001,P000001,,,,,LOC0001,Available,,,,
