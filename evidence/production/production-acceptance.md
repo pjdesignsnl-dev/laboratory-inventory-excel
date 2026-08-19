@@ -22,7 +22,7 @@ permissions** require owner provisioning of the network share.
 | Macro security: AccessVBOM | 0 (verified; workbook operates with it disabled) |
 | Macro trust model | No signing certificate available → controlled Trusted Location documented (scoped to production folder); no fake trust |
 | Mark-of-the-Web handling | Documented (unblock + SHA verify; trusted location exempts the writer) |
-| Physical scanner acceptance | **PENDING — no scanner available (not fabricated)** |
+| Physical scanner acceptance | **PENDING — environment blocker (2026-08-20): scanner is physically connected but not reachable from this RDP session (no PnP device, no HID keyboard, no input in live probe); must run from the console session or with USB redirection. NOT fabricated** |
 | Label print acceptance | Layout validated in PDF; Code 128 font + printer PENDING (documented) |
 | Clean production data reset | PASS (`LabInventory_v1.0.0-production.xlsm`, empty operational tables, controlled lists preserved, inert fault module) |
 | Initial-data-import safety | PASS (templates + validation rules + QA report template + go-live baseline documented) |

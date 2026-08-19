@@ -1,15 +1,39 @@
 # Physical Barcode Scanner Acceptance — status & checklist
 
-**Status: NOT EXECUTED — no physical scanner is available in the build/test
-environment.** This document is the acceptance checklist and record template.
+**Status: NOT EXECUTED (environment blocker) — the physical scanner is
+connected to the machine but NOT reachable from this session.** This document
+is the acceptance checklist and record template.
 
-## Scanner availability (checked 2026-08-19)
+## Scanner availability (checked 2026-08-20)
 
-- USB devices enumerated: only HID vendor-defined/consumer-control devices for
-  the SteelSeries keyboard (VID_1038) and Remote Desktop Keyboard Device.
-  **No USB barcode scanner present.**
-- Therefore **real-hardware scanner acceptance could not be performed** and is
-  NOT fabricated. This is the primary remaining hardware production gate.
+- The user reported a physical USB keyboard-wedge scanner is connected.
+- Session context: this harness runs in **Remote Desktop session 1**
+  (`rdp-tcp#8`); the console session is session 2. USB devices attached to the
+  physical console are **not exposed inside the RDP session** unless USB
+  redirected.
+- PnP enumeration from this session (after `pnputil /scan-devices`):
+  - No scanner-identifiable device (no Zebra/Honeywell/Datalogic/Socket/etc.
+    VID; no new HID keyboard beyond the SteelSeries VID_1038 devices).
+  - Present USB devices: TP-Link adapter (VID_2357), root hub, RDP USB hub
+    (TS_USB_HUB has no redirected children).
+  - Keyboard devices: two SteelSeries HID keyboards + Remote Desktop Keyboard
+    Device only.
+- Live input probe (`scripts/scanner_live_probe.ps1`,
+  `evidence/production/scanner-live-probe.md`): Scan!D7 selected and cleared;
+  **no typed/scanned input arrived in a 45 s window** — no scanner keystrokes
+  reach this session.
+- Therefore **real-hardware scanner acceptance could NOT be performed from this
+  session** and is NOT fabricated. This remains the primary remaining hardware
+  production gate.
+
+## To unblock
+
+- Attach/redirect the scanner to THIS session, or run the acceptance from the
+  console session (session 2) where the scanner is physically connected, then
+  record results below.
+- If the scanner is a keyboard-wedge device on the RDP client PC, enable USB
+  redirection of HID devices in the RDP client (Local Resources → More →
+  Other supported Plug and Play devices), reconnect, and re-run the probe.
 
 ## Checklist (to complete on-site with the actual device)
 
