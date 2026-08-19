@@ -41,3 +41,7 @@ __pycache__/
 workbook/LabInventory_diagnostics.log
 workbook/LabInventory_backup_*.xlsm
 
+
+# transient deployment-location smoke artifacts (evidence markdown is committed)
+evidence/production/deployment-location/
+
