@@ -35,7 +35,9 @@ permissions** require owner provisioning of the network share.
 
 ## Final security / integrity checks
 
-- AccessVBOM = 0 ✓
+- AccessVBOM = 0 ✓ (verified final state; re-verified after the last build
+  temporarily set it to 1 — restored to 0 and the production workbook
+  re-verified to open/operate with it disabled)
 - VBA project compiles (production binary compiles on save) ✓
 - Workbook opens without repair ✓
 - No formula errors (dashboard + all sheets) ✓
