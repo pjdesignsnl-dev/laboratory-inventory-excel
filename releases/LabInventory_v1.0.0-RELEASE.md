@@ -68,7 +68,8 @@ print**, **deployment share provisioning**, and **initial inventory import**
 | Deployment-location smoke | `b2b09c5` | Phase 11: smoke from simulated share location (second writer not permitted) |
 | Transient artifacts cleanup | `e028ec2` | deployment-location smoke xlsm copies gitignored |
 | Phase 12/13 review + integrity | `b3155e4` | UI review (no test hooks) + final security/integrity check PASS |
-| **Final production commit (this manifest's identity)** | `b3155e49` | exact final production source tree (current HEAD) |
+| Manifest identity consistency | `95870ca` | final production commit chain + acceptance HEAD recorded |
+| **Final production commit (this manifest's identity)** | `95870ca6` | exact final production source tree (current HEAD) |
 
 ## 4. Workbook contract (frozen members)
 
