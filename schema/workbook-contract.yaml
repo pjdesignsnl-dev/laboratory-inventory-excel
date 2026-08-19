@@ -10,7 +10,7 @@ freeze:
   excel_runtime_acceptance: "29/29 PASS (evidence/excel-runtime/excel-runtime-results.txt)"
   supplementary_regression: "structural 51/51 PASS; formula/business-rule 55/55 PASS"
   deployment_frozen: false
-  deployment_note: "Final storage/deployment option is NOT frozen; D-013 remains Proposed and requires owner decision (see deployment block)."
+  deployment_note: "Final storage/deployment option was NOT frozen at contract freeze; it is now ACCEPTED as Option A/B via D-023 (2026-08-19) — see the deployment block below."
 product:
   name: Laboratory Inventory for Excel
   version: v0.1
@@ -27,19 +27,18 @@ target_environment:
   writer_count: 1
   barcode_scanner: USB keyboard wedge (Enter suffix)
 
-# Deployment is deliberately UNRESOLVED in the frozen contract (D-013 Proposed).
-# The application architecture is frozen independently of the final
-# storage/deployment option; the owner must decide before final release.
-deployment_status: proposed
+# Deployment is now ACCEPTED (D-023, 2026-08-19): Option A/B — single-writer
+# master .xlsm on a private network share + separate macro-free read-only
+# reporting workbook for all other PCs. No multi-user editing.
+deployment_status: accepted
 writer_model: single_writer
 reader_model: read_only_elsewhere
-deployment_option: unresolved
+deployment_option: option_a_network_share
 deployment_notes:
-  - "Option A: single-writer master .xlsm on a private network share + read-only copies (proposed default, D-013)."
-  - "Option B: master + separate read-only reporting workbook."
-  - "Option C: Microsoft 365/SharePoint/OneDrive (rejected for the writer path; possible read-only publishing later)."
-  - "Option D: Google Drive Office-file sync (rejected)."
-  - "Full trade-off analysis in docs/architecture.md section 14."
+  - "Option A/B (D-023): authoritative LabInventory_v1.0.0-production.xlsm on a private network share (SMB); ONLY the dedicated laboratory PC has write permission; all other PCs use the macro-free read-only report workbook."
+  - "Option C (Microsoft 365/SharePoint/OneDrive): rejected for the writer path — no M365 business tenant/SharePoint library provisioned on this machine (Excel 2024 Retail, personal OneDrive only); personal OneDrive cannot enforce the single-writer/read-only permission model."
+  - "Option D (Google Drive Office-file sync): rejected — sync introduces split-brain and is not a desktop-Excel/VBA runtime; Google Drive may be used only for backup/archive copies, never as the operational workbook."
+  - "Full trade-off analysis in docs/architecture.md section 14; production model in docs/production-deployment.md."
 
 worksheets:
   - name: Dashboard

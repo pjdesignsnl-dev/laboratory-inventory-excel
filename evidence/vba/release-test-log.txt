@@ -1,29 +1,113 @@
 opened release workbook (events disabled)
-Run modTestHooks.Test_RunAll in 421 ms
-OUT: contract:OK diag=[]
-OUT: drift:before=FAIL after=OK
-OUT: lookup-start
-OUT: lookup-range:$B$5:$B$25 rows=21
-OUT: lookup-type:String text=[0000001]
-OUT: vbaloop-found:1
-OUT: lookupbybarcode-start
-OUT: lookupbybarcode-end:OK row=1
-OUT: unknown-end:OK
-OUT: lookup-empty:OK
-OUT: lookup-invalid:OK
-OUT: lookup-end
-OUT: t-avail-takeopen:OK
-OUT: t-expiredby-date-takeopen:OK
-OUT: t-inuse-return:OK
-OUT: t-disposed-takeopen:OK
-OUT: t-expired-dispose:OK
-OUT: txnid-format:OK tid=T00000032
-OUT: txnid-unique:OK
-OUT: receive-one:OK cid=C000022
-OUT: receive-one-cid:OK
-OUT: receive-n:OK count=3
-OUT: receive-n-ids:C000023,C000024,C000025
-OUT: receive-n-unique:OK
-OUT: code128:OK len=10
-OUT: operator:OK op=Q
-OUT: backup:OK path=C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_backup_20260819_211701.xlsm
+Run modTestHooks.Test_FaultInjection in 3177 ms
+OUT: fault-injection-start
+OUT: fault-scancommit-boundary1:OK (expected failure)
+OUT:   b1-txn-count:OK now=31
+OUT:   b1-container-count:OK now=21
+OUT:   b1-status-restored:OK now=[Available] pre=[Available]
+OUT:   b1-location-restored:OK now=[LOC0004] pre=[LOC0004]
+OUT:   b1-dashboard:OK now=15 pre=15
+OUT:   b1-formula-errors:OK count=0
+OUT:   b1-events-restored:OK now=False pre=False
+OUT:   b1-calc-restored:OK mode=-4105
+OUT:   b1-scanner-usable:OK msg=[FOUND - scan details shown. Choose an action to commit.]
+OUT:   b1-scan-input-cleared:OK val=[]
+OUT: fault-scancommit-boundary1-invariants:OK
+OUT: fault-scancommit-boundary2:OK (expected failure)
+OUT:   b2-txn-count:OK now=31
+OUT:   b2-container-count:OK now=21
+OUT:   b2-status-restored:OK now=[Available] pre=[Available]
+OUT:   b2-location-restored:OK now=[LOC0004] pre=[LOC0004]
+OUT:   b2-dashboard:OK now=15 pre=15
+OUT:   b2-formula-errors:OK count=0
+OUT:   b2-events-restored:OK now=False pre=False
+OUT:   b2-calc-restored:OK mode=-4105
+OUT:   b2-scanner-usable:OK msg=[FOUND - scan details shown. Choose an action to commit.]
+OUT:   b2-scan-input-cleared:OK val=[]
+OUT: fault-scancommit-boundary2-invariants:OK
+OUT: fault-scancommit-boundary3:OK (expected failure)
+OUT:   b3-txn-count:OK now=31
+OUT:   b3-container-count:OK now=21
+OUT:   b3-status-restored:OK now=[Available] pre=[Available]
+OUT:   b3-location-restored:OK now=[LOC0004] pre=[LOC0004]
+OUT:   b3-dashboard:OK now=15 pre=15
+OUT:   b3-formula-errors:OK count=0
+OUT:   b3-events-restored:OK now=False pre=False
+OUT:   b3-calc-restored:OK mode=-4105
+OUT:   b3-scanner-usable:OK msg=[FOUND - scan details shown. Choose an action to commit.]
+OUT:   b3-scan-input-cleared:OK val=[]
+OUT: fault-scancommit-boundary3-invariants:OK
+OUT: fault-scancommit-boundary4:OK (expected failure)
+OUT:   b4-txn-count:OK now=31
+OUT:   b4-container-count:OK now=21
+OUT:   b4-status-restored:OK now=[Available] pre=[Available]
+OUT:   b4-location-restored:OK now=[LOC0004] pre=[LOC0004]
+OUT:   b4-dashboard:OK now=15 pre=15
+OUT:   b4-formula-errors:OK count=0
+OUT:   b4-events-restored:OK now=False pre=False
+OUT:   b4-calc-restored:OK mode=-4105
+OUT:   b4-scanner-usable:OK msg=[FOUND - scan details shown. Choose an action to commit.]
+OUT:   b4-scan-input-cleared:OK val=[]
+OUT: fault-scancommit-boundary4-invariants:OK
+OUT: fault-scancommit-boundary5:OK (expected failure)
+OUT:   b5-txn-count:OK now=31
+OUT:   b5-container-count:OK now=21
+OUT:   b5-status-restored:OK now=[Available] pre=[Available]
+OUT:   b5-location-restored:OK now=[LOC0004] pre=[LOC0004]
+OUT:   b5-dashboard:OK now=15 pre=15
+OUT:   b5-formula-errors:OK count=0
+OUT:   b5-events-restored:OK now=False pre=False
+OUT:   b5-calc-restored:OK mode=-4105
+OUT:   b5-scanner-usable:OK msg=[FOUND - scan details shown. Choose an action to commit.]
+OUT:   b5-scan-input-cleared:OK val=[]
+OUT: fault-scancommit-boundary5-invariants:OK
+OUT: fault-receive-boundary1:OK (expected failure)
+OUT:   receive-b1-txn-count:OK now=31 pre=31
+OUT:   receive-b1-container-count:OK now=21 pre=21
+OUT:   receive-b1-dashboard:OK now=15 pre=15
+OUT:   receive-b1-formula-errors:OK count=0
+OUT:   receive-b1-events:OK now=False pre=False
+OUT:   receive-b1-calc:OK
+OUT:   receive-b1-normal-after:OK cid=C000022
+OUT: fault-receive-boundary2:OK (expected failure)
+OUT:   receive-b2-txn-count:OK now=31 pre=31
+OUT:   receive-b2-container-count:OK now=21 pre=21
+OUT:   receive-b2-dashboard:OK now=15 pre=15
+OUT:   receive-b2-formula-errors:OK count=0
+OUT:   receive-b2-events:OK now=False pre=False
+OUT:   receive-b2-calc:OK
+OUT:   receive-b2-normal-after:OK cid=C000022
+OUT: fault-receive-boundary3:OK (expected failure)
+OUT:   receive-b3-txn-count:OK now=31 pre=31
+OUT:   receive-b3-container-count:OK now=21 pre=21
+OUT:   receive-b3-dashboard:OK now=15 pre=15
+OUT:   receive-b3-formula-errors:OK count=0
+OUT:   receive-b3-events:OK now=False pre=False
+OUT:   receive-b3-calc:OK
+OUT:   receive-b3-normal-after:OK cid=C000022
+OUT: fault-receive-boundary4:OK (expected failure)
+OUT:   receive-b4-txn-count:OK now=31 pre=31
+OUT:   receive-b4-container-count:OK now=21 pre=21
+OUT:   receive-b4-dashboard:OK now=15 pre=15
+OUT:   receive-b4-formula-errors:OK count=0
+OUT:   receive-b4-events:OK now=False pre=False
+OUT:   receive-b4-calc:OK
+OUT:   receive-b4-normal-after:OK cid=C000022
+OUT: fault-receive-boundary5:OK (expected failure)
+OUT:   receive-b5-txn-count:OK now=31 pre=31
+OUT:   receive-b5-container-count:OK now=21 pre=21
+OUT:   receive-b5-dashboard:OK now=15 pre=15
+OUT:   receive-b5-formula-errors:OK count=0
+OUT:   receive-b5-events:OK now=False pre=False
+OUT:   receive-b5-calc:OK
+OUT:   receive-b5-normal-after:OK cid=C000022
+OUT: fault-receiven-batch:OK (expected failure)
+OUT:   receiven-batch-txn-count:OK now=31 pre=31
+OUT:   receiven-batch-container-count:OK now=21 pre=21
+OUT:   receiven-batch-dashboard:OK now=15 pre=15
+OUT:   receiven-batch-formula-errors:OK count=0
+OUT:   receiven-batch-events:OK now=False pre=False
+OUT:   receiven-batch-calc:OK
+OUT:   receiven-batch-normal-after:OK count=3
+OUT:   receiven-batch-ids-unique:OK ids=C000022,C000023,C000024
+OUT: fault-injection-end

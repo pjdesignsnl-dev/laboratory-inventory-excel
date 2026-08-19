@@ -1,0 +1,51 @@
+opened C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v0.1.xlsx
+cleared tblProducts on Products
+cleared tblContainers on Containers
+cleared tblTransactions on Transactions
+cleared tblSuppliers on Suppliers
+cleared tblLocations on Locations
+saved C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_v1.0.0-production.xlsm
+imported modConstants.bas
+imported modWorkbookContract.bas
+imported modUtilities.bas
+imported modBarcodeLookup.bas
+imported modValidation.bas
+imported modTransactions.bas
+imported modContainers.bas
+imported modReceiving.bas
+imported modScanInterface.bas
+imported modBackup.bas
+imported modErrorHandling.bas
+imported modCode128.bas
+imported modFaultInjection.bas
+Scan worksheet CodeName: Sheet2
+injected document module code: ThisWorkbook
+injected document module code: Sheet2
+saved after import (Excel compiles on save)
+VBComponents count: 23
+exported ThisWorkbook.cls
+exported Sheet1.cls
+exported Sheet2.cls
+exported Sheet3.cls
+exported Sheet4.cls
+exported Sheet5.cls
+exported Sheet6.cls
+exported Sheet7.cls
+exported Sheet8.cls
+exported Sheet9.cls
+exported modConstants.bas
+exported modWorkbookContract.bas
+exported modUtilities.bas
+exported modBarcodeLookup.bas
+exported modValidation.bas
+exported modTransactions.bas
+exported modContainers.bas
+exported modReceiving.bas
+exported modScanInterface.bas
+exported modBackup.bas
+exported modErrorHandling.bas
+exported modCode128.bas
+exported modFaultInjection.bas
+VBE hidden before final save
+final save
+closed

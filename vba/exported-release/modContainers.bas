@@ -215,6 +215,12 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
     Dim r As Long
     r = lo.DataBodyRange.row + lo.DataBodyRange.Rows.count - 1
 
+    ' Barcode / ContainerID / ProductID must be stored as TEXT (frozen
+    ' contract: barcode \d{7} text). Without a text number format, Excel
+    ' coerces "0000001" to the number 1, which breaks text lookup.
+    ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_CONTAINER_ID)).NumberFormat = "@"
+    ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_BARCODE)).NumberFormat = "@"
+    ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_PRODUCT_ID)).NumberFormat = "@"
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_CONTAINER_ID)).Value2 = cid
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_BARCODE)).Value2 = barcode
     ws.Cells(r, modBarcodeLookup.ColumnIndex(lo, COL_PRODUCT_ID)).Value2 = productID

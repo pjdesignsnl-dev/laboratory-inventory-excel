@@ -11,12 +11,12 @@ Option Explicit
 
 Public Type ContainerState
     Row As Long
-    Status As String
+    status As String
     StorageLocationID As String
     OpenedDate As Variant
     DisposalDate As Variant
-    DisposalReason As String
-    Notes As String
+    disposalReason As String
+    notes As String
 End Type
 
 ' ------------------------------------------------------------------ next IDs
@@ -31,7 +31,7 @@ Public Function NextContainerID() As String
     maxN = 0
     If Not lo.DataBodyRange Is Nothing Then
         Dim r As Long
-        For r = 1 To lo.DataBodyRange.Rows.Count
+        For r = 1 To lo.DataBodyRange.Rows.count
             Dim v As Variant
             v = lo.DataBodyRange.Cells(r, numCol).Value2
             If IsNumeric(v) And CLng(v) > maxN Then maxN = CLng(v)
@@ -76,7 +76,7 @@ Public Function NextBarcode() As String
     maxN = 0
     If Not lo.DataBodyRange Is Nothing Then
         Dim r As Long
-        For r = 1 To lo.DataBodyRange.Rows.Count
+        For r = 1 To lo.DataBodyRange.Rows.count
             Dim v As Variant
             v = lo.DataBodyRange.Cells(r, numCol).Value2
             If IsNumeric(v) And CLng(v) > maxN Then maxN = CLng(v)
@@ -123,12 +123,12 @@ Public Function CaptureState(ByVal rowNum As Long) As ContainerState
     r = lo.DataBodyRange.Row + rowNum - 1
     With CaptureState
         .Row = rowNum
-        .Status = CellValue(lo, rowNum, COL_STATUS)
+        .status = CellValue(lo, rowNum, COL_STATUS)
         .StorageLocationID = CellValue(lo, rowNum, COL_STORAGE_LOCATION_ID)
         .OpenedDate = CellValue(lo, rowNum, COL_OPENED_DATE)
         .DisposalDate = CellValue(lo, rowNum, COL_DISPOSAL_DATE)
-        .DisposalReason = CellValue(lo, rowNum, COL_DISPOSAL_REASON)
-        .Notes = CellValue(lo, rowNum, COL_NOTES)
+        .disposalReason = CellValue(lo, rowNum, COL_DISPOSAL_REASON)
+        .notes = CellValue(lo, rowNum, COL_NOTES)
     End With
 End Function
 
@@ -180,12 +180,12 @@ Public Sub RollbackState(ByRef saved As ContainerState)
     Set ws = ThisWorkbook.Worksheets(WS_CONTAINERS)
     modUtilities.UnprotectSheet ws
 
-    SetCellValue lo, saved.Row, COL_STATUS, saved.Status
+    SetCellValue lo, saved.Row, COL_STATUS, saved.status
     SetCellValue lo, saved.Row, COL_STORAGE_LOCATION_ID, saved.StorageLocationID
     SetCellValue lo, saved.Row, COL_OPENED_DATE, saved.OpenedDate
     SetCellValue lo, saved.Row, COL_DISPOSAL_DATE, saved.DisposalDate
-    SetCellValue lo, saved.Row, COL_DISPOSAL_REASON, saved.DisposalReason
-    SetCellValue lo, saved.Row, COL_NOTES, saved.Notes
+    SetCellValue lo, saved.Row, COL_DISPOSAL_REASON, saved.disposalReason
+    SetCellValue lo, saved.Row, COL_NOTES, saved.notes
 
     modUtilities.ProtectSheet ws
 End Sub
@@ -213,7 +213,7 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
     Dim lr As ListRow
     Set lr = lo.ListRows.Add
     Dim r As Long
-    r = lo.DataBodyRange.Row + lo.DataBodyRange.Rows.Count - 1
+    r = lo.DataBodyRange.Row + lo.DataBodyRange.Rows.count - 1
 
     ' Barcode / ContainerID / ProductID must be stored as TEXT (frozen
     ' contract: barcode \d{7} text). Without a text number format, Excel
@@ -239,7 +239,7 @@ Public Function AddContainer(ByVal barcode As String, ByVal productID As String,
     ' Self-clean: delete the row we just created, then raise.
     If modFaultInjection.FaultAt(modFaultInjection.FAULT_DURING_CONTAINER_MUTATION) Then
         On Error Resume Next
-        lo.ListRows(lo.ListRows.Count).Delete
+        lo.ListRows(lo.ListRows.count).Delete
         On Error GoTo addFail
         modUtilities.ProtectSheet ws
         Err.Raise vbObjectError + 2303, "modContainers", _

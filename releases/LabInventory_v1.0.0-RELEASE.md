@@ -1,11 +1,13 @@
 # Release Manifest — Laboratory Inventory Excel v1.0.0
 
-**Release status:** Candidate release for review. All defined requirements and
-automated/runtime acceptance tests pass with **no known defects**.
+**Release status:** Production candidate — software acceptance passes with no
+known defects; production-hardening gates are being finalized. Final
+production-approved status depends on physical-scanner acceptance and the
+finalized deployment (D-023 Accepted).
 
-> Per project policy, this does NOT claim "100% correct". Physical-scanner
-> acceptance and the external deployment choice remain **unresolved** (see
-> Known limitations).
+> Per project policy, this does NOT claim "100% correct". See Known
+> limitations for the physical-scanner acceptance status and the finalized
+> deployment model.
 
 ---
 
@@ -14,6 +16,7 @@ automated/runtime acceptance tests pass with **no known defects**.
 | Artifact | Path | SHA-256 |
 |---|---|---|
 | Operational workbook (macro-enabled) | `workbook/LabInventory_v1.0.0.xlsm` | `71D8739F0991BC074EB4489CE4A97D4891C7034640D03B2AACEB8875FC221F4E` |
+| Production operational workbook (clean, no fixtures) | `workbook/LabInventory_v1.0.0-production.xlsm` | (final, recorded at production release) |
 | Read-only report workbook (macro-free) | `workbook/LabInventory_v1.0.0-readonly-report.xlsx` | derived from frozen base (below) |
 | Macro-free base (frozen, D-022 revised) | `workbook/LabInventory_v0.1.xlsx` | `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5` |
 | VBA source (modules + document modules + release export) | `vba/modules/*.bas`, `vba/docmodules/*.cls`, `vba/exported-release/` | source-controlled |
@@ -50,7 +53,10 @@ automated/runtime acceptance tests pass with **no known defects**.
 | Performance + regression | `8ffc1b5` | 500-container scale test |
 | Release v1.0.0 (first) | `53aa89a`, `c59d6ea` | release build + final acceptance |
 | **Fault-injection acceptance** | `3b9c4d2` | atomicity under injected failures (modFaultInjection) |
-| **Release HEAD (candidate)** | `3b9c4d25fd` | this manifest's source tree |
+| Release v1.0.0 (rebuilt) | `c065112` | release rebuild + manifest update (new SHA `71D8739F…`) |
+| AccessVBOM restore | `adabb53` | AccessVBOM=0; release verified with it disabled |
+| **Production-final source HEAD** | `adabb53ee3a` | exact production source tree (this manifest's identity) |
+| **Production release commit** | *(recorded after Phase 15)* | production artifacts + docs + manifest status |
 
 ## 4. Workbook contract (frozen members)
 
