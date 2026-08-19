@@ -1,7 +1,27 @@
-opened with events enabled (Workbook_Open ran)
-statusbar=[Laboratory Inventory ready.]
-has-vb-project=True
-vb-components=24
-sheets=9
-scan-msg=[FOUND - scan details shown. Choose an action to commit.]
-scan-ok=True
+# Final release acceptance — LabInventory_v1.0.0.xlsm (AccessVBOM=0)
+
+Date: 2026-08-19 (Microsoft Excel 16.0.20228.20190 x64, Windows)
+Workbook: `workbook/LabInventory_v1.0.0.xlsm` (SHA-256
+`71D8739F0991BC074EB4489CE4A97D4891C7034640D03B2AACEB8875FC221F4E`)
+
+AccessVBOM registry state: **0 (disabled)** — restored after all VBA
+import/export work finished.
+
+## Result (events enabled — real user experience)
+
+- Workbook opened with events enabled; `Workbook_Open` ran the runtime
+  contract validator.
+- Status bar: `Laboratory Inventory ready.` (no fail-closed).
+- `has-vb-project=True`; 9 worksheets intact.
+- `vb-components=0` is EXPECTED: with AccessVBOM=0, Excel blocks programmatic
+  VBA-project access (the VBComponents read returns empty). The VBA code
+  itself still executes normally (see below) — AccessVBOM only gates project
+  *introspection/import/export*, not macro execution.
+- Live keyboard-wedge scan of `0000001` into Scan!D7: status message
+  `FOUND - scan details shown. Choose an action to commit.`; `scan-ok=True`.
+
+## Conclusion
+
+The release workbook opens and operates normally with AccessVBOM disabled.
+The macro-enabled operational workflow (contract validation on open + scan
+dispatch) is fully functional without programmatic VBA project access.
