@@ -12,12 +12,13 @@ imported modScanInterface.bas
 imported modBackup.bas
 imported modErrorHandling.bas
 imported modCode128.bas
+imported modFaultInjection.bas
 imported modTestHooks.bas
 Scan worksheet CodeName: Sheet2
 injected document module code: ThisWorkbook
 injected document module code: Sheet2
 saved after import (Excel compiles on save)
-VBComponents count: 23
+VBComponents count: 24
 exported ThisWorkbook.cls
 exported Sheet1.cls
 exported Sheet2.cls
@@ -40,6 +41,7 @@ exported modScanInterface.bas
 exported modBackup.bas
 exported modErrorHandling.bas
 exported modCode128.bas
+exported modFaultInjection.bas
 exported modTestHooks.bas
 VBE hidden before final save
 final save

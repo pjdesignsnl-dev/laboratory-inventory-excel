@@ -13,7 +13,7 @@ automated/runtime acceptance tests pass with **no known defects**.
 
 | Artifact | Path | SHA-256 |
 |---|---|---|
-| Operational workbook (macro-enabled) | `workbook/LabInventory_v1.0.0.xlsm` | `181DEF1A4B21A08AA6FBB90ECF44252D34640C87FF88F99423650B5C783F718D` |
+| Operational workbook (macro-enabled) | `workbook/LabInventory_v1.0.0.xlsm` | `71D8739F0991BC074EB4489CE4A97D4891C7034640D03B2AACEB8875FC221F4E` |
 | Read-only report workbook (macro-free) | `workbook/LabInventory_v1.0.0-readonly-report.xlsx` | derived from frozen base (below) |
 | Macro-free base (frozen, D-022 revised) | `workbook/LabInventory_v0.1.xlsx` | `2CD1B7E6E2CB44B418134AF16F1686ADC04FECC06C9ADFCE55442BFF2BADC9E5` |
 | VBA source (modules + document modules + release export) | `vba/modules/*.bas`, `vba/docmodules/*.cls`, `vba/exported-release/` | source-controlled |
@@ -31,7 +31,10 @@ automated/runtime acceptance tests pass with **no known defects**.
 | Formula / business-rule (non-VBA) | 55/55 PASS |
 | VBA test sweep (`Test_RunAll`) | all PASS in real Excel |
 | VBA Phase F matrix + reconciliation | all PASS in real Excel |
+| Fault-injection atomicity (`Test_FaultInjection`) | all PASS (5 scan-commit + 5 receive boundaries + ReceiveN batch rollback) |
 | Scanner simulation (keyboard-wedge events) | PASS |
+| Save/close/reopen persistence | PASS |
+| Performance smoke (`Test_PerfSmoke`) | PASS (receive 20 in 1.18 s; deep lookup <1 ms; 20 lookups 8 ms) |
 
 ## 3. Git identity
 
@@ -45,7 +48,9 @@ automated/runtime acceptance tests pass with **no known defects**.
 | Phase F matrix | `d97c0ba` | all 9 transitions + D-018 + reconciliation |
 | Phase F/G events + scanner sim | `e7c9a10` | event dispatch validated |
 | Performance + regression | `8ffc1b5` | 500-container scale test |
-| **Release HEAD** | `8ffc1b59d4` | this manifest's source tree |
+| Release v1.0.0 (first) | `53aa89a`, `c59d6ea` | release build + final acceptance |
+| **Fault-injection acceptance** | `3b9c4d2` | atomicity under injected failures (modFaultInjection) |
+| **Release HEAD (candidate)** | `3b9c4d25fd` | this manifest's source tree |
 
 ## 4. Workbook contract (frozen members)
 
@@ -81,6 +86,7 @@ automated/runtime acceptance tests pass with **no known defects**.
 | `modBackup` | Timestamped SaveCopyAs backup (backup-required-fails-stops) |
 | `modErrorHandling` | Error classification, operator messages, diagnostics log |
 | `modCode128` | Code 128B pattern generation (printer-independent labels) |
+| `modFaultInjection` | Deterministic one-shot fault injection at mutation boundaries (test-only) |
 | `modTestHooks` | Test hooks (all suites) |
 | `ThisWorkbook` | Workbook_Open contract validation (fail-closed) |
 | `Scan` (Sheet2) | Worksheet_Change → dispatch only (no business rules) |
@@ -94,14 +100,17 @@ automated/runtime acceptance tests pass with **no known defects**.
 | Formula engine / business rules | 55/55 PASS |
 | VBA `Test_RunAll` (contract/drift/lookup/transitions/IDs/receive/Code128/operator/backup) | all PASS (~480 ms) |
 | VBA `Test_PhaseF` (9-transition matrix, D-018 commit block, atomicity, dashboard reconciliation) | all PASS (~2 s) |
+| VBA `Test_FaultInjection` (5 scan-commit boundaries + 5 receive boundaries + ReceiveN batch rollback, full invariant checks) | all PASS (~4.5 s) — see `evidence/vba/atomicity-fault-injection.md` |
 | Scanner simulation (keyboard-wedge event → staging) | PASS |
+| Save/close/reopen persistence | PASS |
 | Performance (500 containers) | receive 500 OK (58.6 s); deep lookup 12 ms; 500 lookups 3039 ms |
+| Performance smoke (`Test_PerfSmoke`) | receive 20 OK (1.18 s); deep lookup <1 ms; 20 lookups 8 ms; cleanup restores table |
 
 ## 7. Security / macro settings (AccessVBOM)
 
 - **Before development:** `HKCU\Software\Microsoft\Office\16.0\Excel\Security\AccessVBOM` was **unset** (0 = default: programmatic VBA project access disabled).
 - **During development (module import/export automation):** set to `1`.
-- **Restore recommendation:** set back to `0` (or delete the value) before operational use, so users cannot silently import/export macros. The release `.xlsm` does **not** require AccessVBOM=1 to run.
+- **Restore status (2026-08-19):** after all VBA import/export work finished, restored to **0/unset** and the final `.xlsm` was re-verified to open and operate normally with AccessVBOM disabled (see `evidence/vba/release-acceptance-log.txt`).
 - **Macro security:** do NOT instruct users to "enable all macros". Recommended: Trusted Location for the operational file, or digitally sign the VBA project. Physical-scanner and deployment decisions remain with the owner.
 
 ## 8. Known limitations

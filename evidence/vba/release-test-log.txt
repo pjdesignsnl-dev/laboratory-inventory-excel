@@ -1,5 +1,5 @@
 opened release workbook (events disabled)
-Run modTestHooks.Test_RunAll in 480 ms
+Run modTestHooks.Test_RunAll in 421 ms
 OUT: contract:OK diag=[]
 OUT: drift:before=FAIL after=OK
 OUT: lookup-start
@@ -26,4 +26,4 @@ OUT: receive-n-ids:C000023,C000024,C000025
 OUT: receive-n-unique:OK
 OUT: code128:OK len=10
 OUT: operator:OK op=Q
-OUT: backup:OK path=C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_backup_20260818_171740.xlsm
+OUT: backup:OK path=C:\Users\Q\Documents\laboratory-inventory-excel\workbook\LabInventory_backup_20260819_211701.xlsm

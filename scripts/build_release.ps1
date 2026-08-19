@@ -1,4 +1,4 @@
-# Final release build: produce workbook/LabInventory_v1.0.0.xlsm from the
+﻿# Final release build: produce workbook/LabInventory_v1.0.0.xlsm from the
 # hash-free macro-free base + all source-controlled modules + document-module
 # code, compile via save, export every component back for verification.
 $ErrorActionPreference = "Stop"

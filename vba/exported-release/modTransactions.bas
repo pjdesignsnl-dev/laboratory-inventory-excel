@@ -92,6 +92,19 @@ End Function
 Public Function AppendTransaction(ByRef snap As Variant) As String
     ' Appends the snapshot as a new row in tblTransactions.
     ' Returns the TransactionID. Raises on failure (caller rolls back).
+    '
+    ' Fault-injection hooks (test-only):
+    '   FAULT_BEFORE_TXN_APPEND  -> raised before any row allocation.
+    '   FAULT_AFTER_TXN_APPEND   -> raised after the row is fully written but
+    '                               before the post-condition; this procedure
+    '                               then removes ITS OWN just-created row so
+    '                               no orphan can survive even if the caller
+    '                               has no tid to remove (self-cleaning).
+    On Error GoTo appendFail
+
+    ' BOUNDARY 1: before transaction append (no row allocated yet)
+    Call modFaultInjection.FaultAt(modFaultInjection.FAULT_BEFORE_TXN_APPEND)
+
     Dim lo As ListObject
     Set lo = ThisWorkbook.Worksheets(WS_TRANSACTIONS).ListObjects(TBL_TRANSACTIONS)
 
@@ -112,6 +125,18 @@ Public Function AppendTransaction(ByRef snap As Variant) As String
     Dim tid As String
     tid = CStr(snap(1))
 
+    ' BOUNDARY 2: immediately after the transaction row is allocated+written.
+    ' If the fault fires, delete the row we just created (self-clean), then
+    ' raise so the caller still observes failure.
+    If modFaultInjection.FaultAt(modFaultInjection.FAULT_AFTER_TXN_APPEND) Then
+        On Error Resume Next
+        RemoveRowById tid
+        On Error GoTo appendFail
+        modUtilities.ProtectSheet ws
+        Err.Raise vbObjectError + 2202, "modTransactions", _
+                  "INJECTED FAULT after transaction append (row removed)"
+    End If
+
     modUtilities.ProtectSheet ws
 
     ' post-condition: exactly one row with this TransactionID
@@ -121,7 +146,38 @@ Public Function AppendTransaction(ByRef snap As Variant) As String
     End If
 
     AppendTransaction = tid
+    Exit Function
+
+appendFail:
+    ' If we raised after allocating a row (boundary 2 or post-condition),
+    ' remove the row that belongs to THIS uncommitted operation only.
+    On Error Resume Next
+    If Len(tid) > 0 Then
+        RemoveRowById tid
+        modUtilities.ProtectSheet ws
+    End If
+    On Error GoTo 0
+    Err.Raise vbObjectError + 2203, "modTransactions", _
+              "Transaction append failed and was rolled back: " & Err.Description
 End Function
+
+Private Sub RemoveRowById(ByVal tid As String)
+    Dim lo As ListObject
+    Set lo = ThisWorkbook.Worksheets(WS_TRANSACTIONS).ListObjects(TBL_TRANSACTIONS)
+    If lo.DataBodyRange Is Nothing Then Exit Sub
+    Dim idCol As Long
+    idCol = modBarcodeLookup.ColumnIndex(lo, COL_TRANSACTION_ID)
+    If idCol <= 0 Then Exit Sub
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Worksheets(WS_TRANSACTIONS)
+    modUtilities.UnprotectSheet ws
+    Dim m As Variant
+    On Error Resume Next
+    m = Application.Match(tid, lo.DataBodyRange.Columns(idCol), 0)
+    On Error GoTo 0
+    If Not IsError(m) Then lo.ListRows(CLng(m)).Delete
+    modUtilities.ProtectSheet ws
+End Sub
 
 Public Function VerifyAppended(ByVal tid As String) As Boolean
     Dim lo As ListObject

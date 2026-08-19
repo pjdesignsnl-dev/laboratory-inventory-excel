@@ -1,7 +1,7 @@
 opened with events enabled (Workbook_Open ran)
 statusbar=[Laboratory Inventory ready.]
 has-vb-project=True
-vb-components=23
+vb-components=24
 sheets=9
 scan-msg=[FOUND - scan details shown. Choose an action to commit.]
 scan-ok=True
