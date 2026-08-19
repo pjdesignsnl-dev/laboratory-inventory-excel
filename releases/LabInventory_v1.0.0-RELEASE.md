@@ -63,7 +63,12 @@ print**, **deployment share provisioning**, and **initial inventory import**
 | AccessVBOM restore | `adabb53` | AccessVBOM=0; release verified with it disabled |
 | **Production source HEAD** | `adabb53ee3a` | exact production source tree (pre-production-prep) |
 | Production prep | `7adfa4e` | D-023 deployment decision, clean production workbook, text-format fix, engine smoke |
-| **Production release commit** | *(final, recorded after Phase 15 push)* | production artifacts + docs + manifest |
+| Production finalize (docs/drill/report/templates/manifest) | `f0a0f68` | production docs, backup/restore drill, read-only report, import templates, label layout |
+| AccessVBOM final + verify | `f9225e1` | AccessVBOM restored to 0; production re-verified |
+| Deployment-location smoke | `b2b09c5` | Phase 11: smoke from simulated share location (second writer not permitted) |
+| Transient artifacts cleanup | `e028ec2` | deployment-location smoke xlsm copies gitignored |
+| Phase 12/13 review + integrity | `b3155e4` | UI review (no test hooks) + final security/integrity check PASS |
+| **Final production commit (this manifest's identity)** | `b3155e49` | exact final production source tree (current HEAD) |
 
 ## 4. Workbook contract (frozen members)
 

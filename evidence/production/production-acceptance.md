@@ -1,8 +1,8 @@
 # Production Acceptance — Laboratory Inventory Excel v1.0.0
 
 Date: 2026-08-19 (Excel 16.0.20228.20190 x64, Windows)
-Branch: `feat/non-vba-v0.1` — final source HEAD `adabb53ee3aec334723ec7e8a2083bcbf7563b92`
-(production-preparation commits follow on top; see release manifest).
+Branch: `feat/non-vba-v0.1` — final source HEAD `b3155e4976b96b6ed0d7bfa3234ee7b52ab5a01b`
+(production-preparation commits; see release manifest §3).
 
 ## Overall status
 
